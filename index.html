@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>+vibe: стратегия запуска</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f6f6f2; --surface:#ffffff; --surface-2:#f0f0ea; --ink:#141414; --ink-2:#45443f; --muted:#6f6e67;
+  --line:#e2e1d9; --lime:#e3fa8c; --lime-ink:#2f3a00; --accent:#141414; --bar:#141414; --bar-soft:#d9d8cf;
+  --good:#1f7a3a; --warn:#a15c00; --bad:#b42318;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#111110; --surface:#1a1a19; --surface-2:#222220; --ink:#f0efec; --ink-2:#c9c8be; --muted:#9a998f;
+    --line:#2f2f2c; --lime:#e3fa8c; --lime-ink:#1d2400; --accent:#e3fa8c; --bar:#e3fa8c; --bar-soft:#34342f;
+    --good:#4cc26e; --warn:#e3a33b; --bad:#f07068;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#111110; --surface:#1a1a19; --surface-2:#222220; --ink:#f0efec; --ink-2:#c9c8be; --muted:#9a998f;
+  --line:#2f2f2c; --lime:#e3fa8c; --lime-ink:#1d2400; --accent:#e3fa8c; --bar:#e3fa8c; --bar-soft:#34342f;
+  --good:#4cc26e; --warn:#e3a33b; --bad:#f07068;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration-color:var(--muted);text-underline-offset:3px}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .5em;letter-spacing:-.01em}
+h1{font-size:clamp(30px,5vw,48px);font-weight:800}
+h2{font-size:clamp(24px,3.2vw,32px);font-weight:800;margin-top:0}
+h3{font-size:19px;font-weight:700;margin-top:1.6em}
+h4{font-size:16px;font-weight:700;margin-top:1.2em}
+p{margin:.5em 0 1em}
+ul,ol{padding-left:1.25em;margin:.4em 0 1em}
+li{margin:.25em 0}
+small,.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* layout */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.2) blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center}
+.logo{display:inline-flex;align-items:center;background:var(--lime);color:#141414;font-weight:900;border-radius:999px;padding:4px 12px;font-size:18px;letter-spacing:-.02em;white-space:nowrap}
+.top-title{font-weight:600;font-size:14px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-btn{margin-left:auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.chips{display:none;overflow-x:auto;gap:6px;padding:0 16px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips a{flex:0 0 auto;font-size:13px;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px}
+nav.toc{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;padding:24px 0}
+nav.toc a{display:block;text-decoration:none;color:var(--ink-2);font-size:14px;padding:5px 10px;border-radius:8px;border-left:2px solid transparent}
+nav.toc a:hover{background:var(--surface-2)}
+nav.toc a.on{color:var(--ink);font-weight:650;border-left-color:var(--accent);background:var(--surface)}
+main{min-width:0;padding:24px 0 80px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:clamp(20px,3.5vw,40px);margin:0 0 24px;box-shadow:var(--shadow)}
+.eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.lead{font-size:18px;color:var(--ink-2);max-width:820px}
+
+/* hero */
+.hero{background:#141414;color:#f4f4ef;border:1px solid #2c2c29}
+.hero .eyebrow{color:#b9b9ad}
+.hero .lead{color:#d6d6cc}
+.hero h1 span{color:var(--lime)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:24px}
+.kpi{background:#1f1f1e;border:1px solid #333330;border-radius:16px;padding:16px}
+.kpi b{display:block;font-size:clamp(22px,2.6vw,30px);font-weight:800;color:var(--lime);letter-spacing:-.02em}
+.kpi span{font-size:13px;color:#c8c8bd;display:block;margin-top:4px}
+.meta{font-size:13px;color:#a9a99e;margin-top:18px}
+
+/* cards & grids */
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--surface)}
+.card h4{margin-top:0}
+.card.lime{background:var(--lime);color:#141414;border-color:transparent}
+.card.lime .muted{color:#3c4500}
+.card.dark{background:#141414;color:#f4f4ef;border-color:#141414}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;margin:0 6px 6px 0;background:var(--surface-2);color:var(--ink-2)}
+.tag.p0{background:#fde5e2;color:#8a1c12}
+.tag.p1{background:#fff0d6;color:#7a4500}
+.tag.p2{background:#e5f3e9;color:#17602c}
+:root[data-theme="dark"] .tag.p0{background:#3a1a17;color:#f6a49c}
+:root[data-theme="dark"] .tag.p1{background:#3a2a10;color:#f0c27a}
+:root[data-theme="dark"] .tag.p2{background:#15301d;color:#8fdba6}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .tag.p0{background:#3a1a17;color:#f6a49c}
+  :root:not([data-theme="light"]) .tag.p1{background:#3a2a10;color:#f0c27a}
+  :root:not([data-theme="light"]) .tag.p2{background:#15301d;color:#8fdba6}
+}
+.callout{border-left:4px solid var(--accent);background:var(--surface-2);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+.callout.lime{border-left-color:#141414;background:var(--lime);color:#141414}
+.callout b{font-weight:700}
+
+/* tables */
+.tbl{width:100%;overflow-x:auto;margin:12px 0 18px;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--surface-2);font-weight:700}
+tr:last-child td{border-bottom:none}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.total td{font-weight:700;background:var(--surface-2)}
+
+/* score bars */
+.score{display:grid;grid-template-columns:minmax(150px,240px) 1fr 44px;align-items:center;gap:12px;margin:8px 0;font-size:14.5px}
+.score .track{height:10px;border-radius:999px;background:var(--bar-soft);overflow:hidden}
+.score .fill{height:100%;border-radius:999px;background:var(--bar)}
+.score b{text-align:right;font-variant-numeric:tabular-nums}
+
+/* usp cards */
+.usp{border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.usp .n{font-size:12px;font-weight:800;color:var(--muted)}
+.usp h4{margin:0}
+.usp .dots{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13px;margin-top:6px;color:var(--ink-2)}
+.dotrow{letter-spacing:2px;font-size:12px;white-space:nowrap}
+.dotrow i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bar-soft);margin-left:3px}
+.dotrow i.on{background:var(--bar)}
+.usp.pick{border:2px solid var(--accent)}
+.badge{align-self:flex-start;font-size:12px;font-weight:700;background:var(--lime);color:#141414;border-radius:999px;padding:2px 10px}
+
+/* canvas */
+.canvas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:auto auto auto;gap:10px}
+.cv{border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px;background:var(--surface)}
+.cv h4{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cv ul{margin:0;padding-left:1.1em}
+.cv.kp{grid-column:1;grid-row:1/3}.cv.ka{grid-column:2;grid-row:1}.cv.kr{grid-column:2;grid-row:2}
+.cv.vp{grid-column:3;grid-row:1/3;background:var(--lime);color:#141414;border-color:transparent}
+.cv.vp h4{color:#3c4500}
+.cv.cr{grid-column:4;grid-row:1}.cv.ch{grid-column:4;grid-row:2}.cv.cs{grid-column:5;grid-row:1/3}
+.cv.co{grid-column:1/3;grid-row:3}.cv.rs{grid-column:3/6;grid-row:3}
+
+/* ladder */
+.ladder{display:grid;gap:8px}
+.step{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.step .i{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--surface-2)}
+.step:nth-child(3) .i,.step:nth-child(4) .i{background:var(--lime);color:#141414}
+.step .p{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
+.calc form{display:grid;gap:12px;background:var(--surface-2);border-radius:16px;padding:16px}
+.calc label{font-size:13px;font-weight:650;color:var(--ink-2);display:grid;gap:6px}
+.calc input,.calc select{font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+.split-row{display:grid;grid-template-columns:minmax(150px,220px) 1fr 110px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.split-row:last-child{border-bottom:none}
+.split-row .bar{height:12px;border-radius:999px;background:var(--bar-soft);overflow:hidden}
+.split-row .bar i{display:block;height:100%;background:var(--bar);border-radius:999px}
+.split-row .amt{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.split-row .who{grid-column:1/-1;font-size:12.5px;color:var(--muted);margin-top:-4px}
+.split-row.profit .bar i{background:var(--good)}
+.calc-sum{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.calc-sum div{background:var(--surface-2);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--ink-2)}
+.calc-sum b{display:block;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* chart */
+.chart{position:relative;border:1px solid var(--line);border-radius:16px;padding:16px 12px 8px;margin:12px 0 6px;background:var(--surface)}
+.chart-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:0 6px 6px}
+.chart-h b{font-size:15px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart .grid line{stroke:var(--line);stroke-width:1}
+.chart .axis text{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.chart .zero{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.chart .tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;box-shadow:0 6px 24px rgba(0,0,0,.12);opacity:0;transition:opacity .12s;min-width:170px}
+.chart .tip b{display:block;margin-bottom:4px}
+.chart .tip div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.chart .tip i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+/* timeline */
+.tl{display:grid;gap:12px}
+.tl .wk{display:grid;grid-template-columns:150px 1fr;gap:16px;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tl .wk b{font-size:14px}
+.tl .wk ul{margin:0}
+
+details{border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:10px 0;background:var(--surface)}
+details summary{cursor:pointer;font-weight:650}
+details[open] summary{margin-bottom:8px}
+.src li{font-size:14px;word-break:break-word}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 40px}
+
+@media (max-width:1100px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0}
+  nav.toc{display:none}
+  .chips{display:flex}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .canvas{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cv.kp,.cv.ka,.cv.kr,.cv.vp,.cv.cr,.cv.ch,.cv.cs,.cv.co,.cv.rs{grid-column:auto;grid-row:auto}
+  .cv.vp{grid-column:1/-1}
+  .calc{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:720px){
+  body{font-size:15.5px}
+  .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  .canvas{grid-template-columns:minmax(0,1fr)}
+  .score{grid-template-columns:minmax(0,1fr) 40px}
+  .score .track{grid-column:1/-1;grid-row:2}
+  .split-row{grid-template-columns:minmax(0,1fr) 96px}
+  .split-row .bar{grid-column:1/-1;grid-row:2}
+  .tl .wk{grid-template-columns:minmax(0,1fr);gap:4px}
+  .step{grid-template-columns:36px 1fr}
+  .step .p{grid-column:2}
+  section{border-radius:16px}
+}
+@page{size:A4;margin:12mm}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html{scroll-padding-top:0}
+  .top,nav.toc,.chips,.theme-btn{display:none}
+  main{padding:0}
+  section{border-radius:12px;margin-bottom:14px}
+  .tbl{overflow:visible}
+  table{min-width:0;font-size:12.5px}
+  .chart .tip{display:none}
+  .wrap{display:block}
+  section{break-inside:auto;box-shadow:none}
+  .card,.kpi,.usp,.step,.cv,.chart,.callout,.split-row,.score,tr,.tl .wk{break-inside:avoid}
+  h2,h3,h4{break-after:avoid}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <span class="logo">+vibe</span>
+    <span class="top-title">Стратегия запуска агентства · локальный документ</span>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Переключить тему">Тема</button>
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+
+<div class="wrap">
+<nav class="toc" id="toc" aria-label="Содержание">
+  <a href="#summary">Главное</a>
+  <a href="#site">1. Анализ сайта</a>
+  <a href="#market">2. Анализ рынка</a>
+  <a href="#competitors">3. Конкуренты</a>
+  <a href="#audience">4. Целевая аудитория</a>
+  <a href="#usp">5. Варианты УТП</a>
+  <a href="#model">6. Бизнес-модель</a>
+  <a href="#finance">7. Финансовая система</a>
+  <a href="#forecast">8. Прогноз на 12 месяцев</a>
+  <a href="#channels">9. Каналы продвижения</a>
+  <a href="#odds">10. Шансы и вероятность</a>
+  <a href="#plan">11. План на 90 дней</a>
+  <a href="#risks">12. Риски</a>
+  <a href="#sources">Источники</a>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <span class="eyebrow">Агентство разработки и продвижения · РФ и зарубежье</span>
+  <h1>+vibe: стратегия запуска <span>и бизнес-модель</span></h1>
+  <p class="lead">Разбор сайта, варианты УТП, финансовая система для команды из 5 разработчиков и 2 менеджеров, каналы продвижения, анализ ЦА и рынка и честная оценка шансов. Цифры прогноза считаются в финансовой модели — <a href="https://docs.google.com/spreadsheets/d/1YvDCYl-CjgTpZHl5JeOV9f4ztQZT8zqa-emu-x7jbl4/edit" target="_blank" rel="noopener">Google Таблица «Финансовая модель +vibe»</a>.</p>
+  <div class="kpis">
+    <div class="kpi"><b>≈ 665 тыс. ₽</b><span>выручки в месяц нужно для безубыточности (≈ 4 проекта по 180 тыс.)</span></div>
+    <div class="kpi"><b>6-й месяц</b><span>выход в плюс в базовом сценарии</span></div>
+    <div class="kpi"><b>≈ 10 млн ₽</b><span>выручка за первый год в базовом сценарии</span></div>
+    <div class="kpi"><b>55–60%</b><span>шанс выйти в устойчивый плюс за первые 9 месяцев (экспертная оценка)</span></div>
+  </div>
+  <p class="meta">Подготовлено 17.11.2026 · Стратегия команды +vibe · Сайт проанализирован по адресу 170.168.91.153:8081</p>
+</section>
+
+<!-- SUMMARY -->
+<section id="summary">
+  <span class="eyebrow">Коротко</span>
+  <h2>Главные выводы</h2>
+  <ol>
+    <li><b>Сайт красивый, но пока «как у всех» и без доверия.</b> Визуал и калькулятор выше среднего по рынку, но нет отличия от сотен студий, нет реальных кейсов, команды, отзывов, реквизитов и английской версии, хотя цель — и зарубежные рынки.</li>
+    <li><b>Есть критичная техническая проблема: форма заявки не отправляет данные.</b> Сейчас она только открывает почтовую программу. У многих посетителей ничего не произойдёт, и заявка потеряется. Это первое, что нужно починить.</li>
+    <li><b>Рынок 2026 года тяжёлый, но не закрытый.</b> Выручка digital-подрядчиков в 2025 году ≈ 115 млрд ₽, но клиенты экономят, 55% агентств ждут ухудшения, нижний сегмент (простые лендинги) давят ИИ и конструкторы. Выигрывают те, кто продаёт результат и скорость, а не «сделаем сайт».</li>
+    <li><b>Конкуренты федеральные, и многие уже обещают то же, что +vibe.</b> 1PS.RU — «в 3 раза больше заявок за счёт ИИ» и неустойку за срыв срока, AVAT — ИИ-разработку и «не успели — доделываем за свой счёт», Kokoc — оплату за результат, Мегагрупп и конструкторы — демпинг. Свободное место: полноценный MVP за 0,5–1,5 млн с ИИ-ускорением, ИИ с цифрами вместо слов, заявки для новых сайтов и маленьких бюджетов, публичная статистика сдачи в срок, Brandyx и пакет для бизнеса за рубежом.</li>
+    <li><b>Рекомендуемое УТП:</b> «AI-студия, которая запускает сайты и приложения в 2–3 раза быстрее, фиксирует срок в договоре и доводит проект до заявок». Название +vibe прямо отсылает к вайб-кодингу, это стоит использовать. Уникальные усилители: собственная AI-платформа Brandyx в подарок к сайту и русскоязычная команда для бизнеса за рубежом.</li>
+    <li><b>Финансовая система — «конверты» с каждого платежа:</b> 7% налоги и банк, 45% разработчики, 3–13% тому, кто привёл клиента, 7% менеджеру проекта, 5% резерв гарантии, 6% маркетинг, 4% операционные, остаток ≈ 13–23% (в среднем ≈ 18%) — прибыль агентства. Команда получает деньги только из оплаченных клиентом этапов, агентство не кредитует проекты.</li>
+    <li><b>Каналы на старте почти бесплатные:</b> тёплая сеть команды, клиенты Brandyx, субподряд (white-label) для других агентств, партнёрская программа, площадки (Авито, Яндекс Услуги, Профи, Workspace) и персональные видео-аудиты. Платную рекламу — небольшим тестом со 2-го месяца.</li>
+    <li><b>Шансы реальные, если закрыть продажи.</b> Модель с переменной оплатой команды почти не сжигает деньги: в базовом сценарии хватит ≈ 450 тыс. ₽ стартовых. Главный риск не в разработке, а в пустой воронке: нужно 20–25 качественных заявок в месяц к 4-му месяцу.</li>
+  </ol>
+</section>
+
+<!-- 1. SITE -->
+<section id="site">
+  <span class="eyebrow">Раздел 1</span>
+  <h2>Анализ сайта +vibe</h2>
+  <p class="lead">Проверил главную и страницы услуг, исходники в папке <code>+v/plusvibe-agency-site</code>, мобильную версию (375 px) и прогнал аудит Lighthouse (мобильный режим).</p>
+
+  <h3>Оценка по ключевым параметрам</h3>
+  <div id="siteScores"></div>
+  <p class="muted" style="font-size:13px">Оценка по 10-балльной шкале — моё экспертное мнение. Lighthouse (мобильный): доступность 91, лучшие практики 78, SEO 66. SEO низкое только из-за закрытия от индексации, после снятия запрета ожидается 90+.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Что уже сильно</h4>
+      <ul>
+        <li>Визуал «графит + лайм» и живые мокапы выглядят дороже большинства региональных студий.</li>
+        <li>Калькулятор стоимости с расшифровкой и конструктор подписки: прозрачные цены — редкость на рынке.</li>
+        <li>Логичная структура: услуги → как работаем → примеры → процесс → цены → FAQ → заявка.</li>
+        <li>Правильные смыслы: «один подрядчик вместо трёх», «этапы и сроки в договоре», «отчёты на языке бизнеса».</li>
+        <li>Технически лёгкий статический сайт: HTML 109 КБ, без тяжёлых картинок, без горизонтальной прокрутки на телефоне, есть schema.org (организация и FAQ), sitemap, robots.</li>
+        <li>Согласие на обработку ПДн не отмечено заранее, есть политика и блог из трёх статей.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Чего не хватает для продаж</h4>
+      <ul>
+        <li><b>Отличия:</b> оффер «сайты + приложения, которые приводят клиентов» есть у сотен студий.</li>
+        <li><b>Доверия:</b> только концепты, нет команды (5 разработчиков — главный актив), отзывов, логотипов клиентов, реквизитов.</li>
+        <li><b>Гарантий:</b> что будет, если сорвём срок; кому принадлежит код; сколько длится гарантия.</li>
+        <li><b>Зарубежной версии:</b> нет английского языка, цен в $/€, hreflang; в разметке указан только рынок РФ.</li>
+        <li><b>Быстрой связи:</b> нет кнопки мессенджера, записи на созвон в календаре, квиза.</li>
+        <li><b>Краткости на телефоне:</b> главная ≈ 20 300 px, это около 25 экранов прокрутки.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Что исправить: список по приоритету</h3>
+  <p><span class="tag p0">P0 — до запуска</span><span class="tag p1">P1 — первый месяц</span><span class="tag p2">P2 — по мере роста</span></p>
+  <div class="tbl"><table>
+    <thead><tr><th>Проблема</th><th>Почему важно</th><th>Что сделать</th><th>Приоритет</th></tr></thead>
+    <tbody>
+      <tr><td>Форма заявки уходит через mailto (в коде <code>FORM_ENDPOINT: ''</code>)</td><td>Без почтовой программы заявка не отправится. Агентство теряет лиды, а клиент думает, что всё ушло</td><td>Подключить обработчик: заявка в Telegram-бот + на почту + в CRM. Запасной канал — кнопка мессенджера</td><td><span class="tag p0">P0</span></td></tr>
+      <tr><td>Нет домена и HTTPS, сайт открывается по IP и порту 8081</td><td>Браузер помечает «Не защищено», доверие падает; без HTTPS хуже ранжирование</td><td>Купить домен (.ru + .com для зарубежья), выпустить сертификат Let's Encrypt, редирект с http</td><td><span class="tag p0">P0</span></td></tr>
+      <tr><td>Заголовок <code>X-Robots-Tag: noindex, nofollow</code>, а в canonical, sitemap, robots и OG указан your-domain.ru</td><td>Поисковики не увидят сайт, ссылки в соцсетях будут битые</td><td>При запуске снять noindex и прогнать <code>setup.py</code> с реальным доменом</td><td><span class="tag p0">P0</span></td></tr>
+      <tr><td>Нет счётчиков аналитики (Метрика, GA4)</td><td>Агентство продаёт «аналитику с первого дня», а у себя её не ставит. Нельзя посчитать стоимость заявки</td><td>Метрика с целями (форма, клик по мессенджеру, звонок) + Вебвизор; для зарубежья GA4</td><td><span class="tag p0">P0</span></td></tr>
+      <tr><td>В подвале заглушка «[ИП или самозанятый: ФИО, ИНН — заполнить]», почта на gmail</td><td>Нет юрлица = нет доверия у бизнеса; по 152-ФЗ нужно указать оператора ПДн</td><td>Оформить ИП/ООО, указать реквизиты, почту на своём домене (hello@…)</td><td><span class="tag p0">P0</span></td></tr>
+      <tr><td>Слово «лучшие» в первом экране</td><td>Превосходная степень без подтверждения — риск по ст. 5 закона «О рекламе»</td><td>Заменить на проверяемое обещание: срок, гарантия, цифры</td><td><span class="tag p0">P0</span></td></tr>
+      <tr><td>Акция «−10% до 30 ноября» заканчивается через 13 дней</td><td>Устаревшая акция на сайте выглядит заброшенно</td><td>Заменить на постоянный оффер «первым 5 клиентам: кейс-цена в обмен на отзыв»</td><td><span class="tag p0">P0</span></td></tr>
+      <tr><td>Шрифты грузятся с серверов Google</td><td>Медленнее в РФ, передача IP-адресов за рубеж</td><td>Скачать Onest и JetBrains Mono и раздавать со своего сервера</td><td><span class="tag p1">P1</span></td></tr>
+      <tr><td>Только демонстрационные концепты</td><td>Клиент покупает доказательства, а не красивые мокапы</td><td>Добавить реальные проекты команды (в портфолио Анны: Brainfab, Pannl, Talent, Brandyx, МойГрафик, Everypixel) — с разрешения правообладателей; 2–3 пилотных проекта по кейс-цене</td><td><span class="tag p1">P1</span></td></tr>
+      <tr><td>Нет блока «Команда»</td><td>5 разработчиков и 2 менеджера с опытом — сильнее любого слогана</td><td>Фото, роль, стек, опыт, 1 факт о каждом. Отдельно: «72 проекта за год» и «до 15 проектов одновременно» из опыта руководителя</td><td><span class="tag p1">P1</span></td></tr>
+      <tr><td>Нет гарантий и условий</td><td>Главные страхи клиента: сорвут срок, пропадут, не отдадут код</td><td>Блок «Наши гарантии»: срок в договоре и компенсация за просрочку, код и права ваши, 60 дней гарантии, еженедельные демо</td><td><span class="tag p1">P1</span></td></tr>
+      <tr><td>Нет английской версии</td><td>Цель — зарубежные рынки, а зарубежному клиенту не за что зацепиться</td><td>Минимум: англоязычный лендинг /en с ценами в $, кейсами и Calendly-ссылкой; hreflang; затем версии на казахском/узбекском по спросу</td><td><span class="tag p1">P1</span></td></tr>
+      <tr><td>Нет мессенджера, записи на созвон и квиза</td><td>Часть людей не заполняет формы, но пишет в мессенджер</td><td>Плавающая кнопка Telegram/WhatsApp/MAX, календарь записи, квиз «подберём решение за 1 минуту»</td><td><span class="tag p1">P1</span></td></tr>
+      <tr><td>Цены на приложения занижены (MVP от 350 тыс. ₽)</td><td>При доле производства 45% это ≈ 107 часов работы — для iOS + Android мало, проект уйдёт в минус</td><td>MVP от 500–600 тыс. ₽ или жёстко урезанный объём (одна платформа, кроссплатформа, 5–7 экранов)</td><td><span class="tag p1">P1</span></td></tr>
+      <tr><td>Главная на телефоне ≈ 25 экранов</td><td>До формы доходит мало людей</td><td>Сократить блоки на мобильном, вынести подробности на страницы услуг, добавить кнопку заявки после каждого блока</td><td><span class="tag p2">P2</span></td></tr>
+      <tr><td>Ошибки доступности (Lighthouse)</td><td><code>aria-selected</code> на кнопках без <code>role="tab"</code>, низкий контраст мелкого текста в мокапах</td><td>Добавить <code>role="tablist"/"tab"</code>, поднять контраст подписей</td><td><span class="tag p2">P2</span></td></tr>
+      <tr><td>Нет товарного знака</td><td>Слово «vibe» популярно, возможен конфликт</td><td>Проверить +vibe по базе Роспатента (классы 35, 42), подать заявку</td><td><span class="tag p2">P2</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 2. MARKET -->
+<section id="market">
+  <span class="eyebrow">Раздел 2</span>
+  <h2>Анализ рынка</h2>
+  <p class="lead">Цифры из открытых источников (ссылки в конце). Разные исследования считают по разным методикам, поэтому они не совпадают — важен порядок величин и направление.</p>
+
+  <div class="grid3">
+    <div class="card"><h4>≈ 115 млрд ₽</h4><p class="muted">совокупная выручка digital-подрядчиков РФ в 2025 году (оценка «Рейтинга Рунета»; в 2024 — 99,2 млрд). В 1 полугодии 2025 расходы клиентов на цифровые услуги сократились на 5–10%.</p></div>
+    <div class="card"><h4>≈ 30 млрд ₽</h4><p class="muted">приходится на разработку из 153,6 млрд ₽ выручки 10 тыс.+ агентств за 9 месяцев 2025 (Workspace). Это ядро нашего рынка.</p></div>
+    <div class="card"><h4>≈ 980 млрд ₽</h4><p class="muted">рекламный рынок РФ 2025 по АКАР, рост +8,5% после +24% в 2024. Медиаинфляция 15–18% — заявки дорожают, клиенты ищут эффективность.</p></div>
+    <div class="card"><h4>7,01 млн</h4><p class="muted">субъектов МСП в реестре ФНС на 10.07.2026, +2,5% с начала года; рост в основном за счёт ИП — это наши будущие клиенты на лендинги и сайты услуг.</p></div>
+    <div class="card"><h4>47% / 55%</h4><p class="muted">47% агентств нарастили выручку за 9 мес. 2025, у 24% она упала; 55% ожидают ухудшения в 2026. «Рейтинг Рунета» прогнозирует сокращение числа подрядчиков.</p></div>
+    <div class="card"><h4>$25–49 / $100–149 в час</h4><p class="muted">ставки агентств по Clutch: Восточная Европа, Мексика, Филиппины против США и Канады. У русскоязычной команды ценовое преимущество в 2–4 раза.</p></div>
+  </div>
+
+  <h3>Тренды, которые влияют на +vibe</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Тренд</th><th>Что это значит для нас</th></tr></thead>
+    <tbody>
+      <tr><td><b>Замедление и экономия клиентов.</b> Бюджеты режут, решения принимают дольше</td><td>Продавать не «сайт», а измеримый результат: заявки, стоимость заявки, окупаемость. Дробить оплату на этапы и подписку</td></tr>
+      <tr><td><b>ИИ и вайб-кодинг стали массовыми в 2026.</b> Конструкторы и ИИ-сборщики делают простые сайты почти бесплатно</td><td>Не конкурировать на дешёвых визитках. Использовать ИИ внутри процесса, чтобы делать быстрее и дешевле по себестоимости, а продавать качество, интеграции и продвижение</td></tr>
+      <tr><td><b>Консолидация рынка.</b> Количество подрядчиков сокращается</td><td>Клиенты закрывающихся студий ищут, кто подхватит сайт. Услуга «возьмём ваш сайт на поддержку за 1 день»</td></tr>
+      <tr><td><b>Налоговая реформа 2026.</b> НДС 22%, порог освобождения для УСН снижен до 20 млн ₽ (дальше — 15 и 10 млн)</td><td>При выручке &gt; 20 млн ₽ за год со следующего года появится НДС 5% (без вычетов). Закладывать в цены с 2027 года</td></tr>
+      <tr><td><b>Усиленный контроль работы с самозанятыми.</b> Новые критерии переквалификации (приказ Минтруда № 657н), лимит дохода 2,4 млн ₽ в год</td><td>Договоры с разработчиками — только как подряд за результат, без графика и подчинения. Разработчикам с доходом выше 200 тыс./мес — ИП</td></tr>
+      <tr><td><b>Мессенджеры как платформа.</b> Telegram Mini Apps, боты, переход аудитории в отечественные сервисы</td><td>Новая продуктовая линейка: мини-приложения и ИИ-боты для записи, продаж и поддержки — быстрый чек 80–250 тыс. ₽</td></tr>
+      <tr><td><b>Зарубежные платежи осложнены.</b> Payoneer ушёл в 2022, SWIFT ограничен, прямые оплаты из ЕС и США проходят плохо</td><td>Для зарубежных клиентов нужен партнёр-юрлицо или платёжный агент (Казахстан, Армения, Грузия, ОАЭ). Начинать с русскоязычных клиентов в СНГ</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Конкуренты по типам</h3>
+  <p class="muted">Конкретные федеральные компании, их цены и каналы продвижения — в <a href="#competitors">разделе 3</a>.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Тип</th><th>Цена лендинга / сайта</th><th>Сильные стороны</th><th>Слабые стороны (наш шанс)</th></tr></thead>
+    <tbody>
+      <tr><td>Фрилансеры (Kwork, FL, Авито)</td><td class="r">10–60 тыс. ₽</td><td>Дёшево, быстро стартуют</td><td>Срывы сроков, один человек на всё, нет продвижения и гарантий</td></tr>
+      <tr><td>Конструкторы и ИИ-сборщики</td><td class="r">0–3 тыс. ₽/мес</td><td>Почти бесплатно, сразу</td><td>Время владельца, шаблонность, нет маркетинга и аналитики</td></tr>
+      <tr><td>Региональные студии (Урал, 5–30 чел.)</td><td class="r">60–400 тыс. ₽</td><td>Местные кейсы, личные встречи</td><td>Долгие сроки, слабый собственный маркетинг, мало кто ведёт до заявок</td></tr>
+      <tr><td>Федеральные агентства из рейтингов</td><td class="r">от 1–3 млн ₽</td><td>Бренд, крупные кейсы, процессы</td><td>Не берут малый бизнес, дорого, медленно</td></tr>
+      <tr><td>Performance-агентства (только реклама и SEO)</td><td class="r">от 30 тыс. ₽/мес</td><td>Сильны в трафике</td><td>Не делают сайт и винят его в плохих заявках</td></tr>
+      <tr><td>Зарубежные студии (Индия, Польша, Казахстан, Сербия)</td><td class="r">$1,5–30 тыс.</td><td>Опыт работы с западными клиентами, удобные платежи</td><td>Не говорят по-русски, не знают Яндекс и российские сервисы</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><b>Свободная позиция для +vibe:</b> средняя цена (150–600 тыс. ₽), полный цикл «сайт + продвижение + аналитика», скорость за счёт ИИ и ответственность за срок. Ниже нас — фрилансеры и конструкторы, выше — дорогие федеральные агентства. Рядом — региональные студии, которые медленнее и не доводят до заявок.</div>
+
+  <h3>Объём рынка для нас</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Уровень</th><th>Что считаем</th><th class="r">Оценка</th></tr></thead>
+    <tbody>
+      <tr><td>TAM — весь рынок</td><td>Разработка в РФ (≈ 30 млрд за 9 мес. 2025, в год ≈ 40 млрд ₽) + продвижение малого и среднего бизнеса</td><td class="r">40+ млрд ₽</td></tr>
+      <tr><td>SAM — доступный</td><td>МСП Урала и онлайн-клиенты по РФ со средним чеком 150–600 тыс. ₽ + русскоязычный бизнес в СНГ и диаспоре</td><td class="r">несколько млрд ₽</td></tr>
+      <tr><td>SOM — реально взять за год</td><td>Базовый сценарий модели</td><td class="r">≈ 10 млн ₽</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">10 млн ₽ — это доли процента рынка. Ограничение не в размере рынка, а в способности команды продавать и в мощности 5 разработчиков (≈ 1,3–2 млн ₽ выручки в месяц при загрузке 80–120 часов на человека).</p>
+</section>
+
+<!-- 3. COMPETITORS -->
+<section id="competitors">
+  <span class="eyebrow">Раздел 3</span>
+  <h2>Конкуренты по России и как они продвигаются</h2>
+  <p class="lead">+vibe работает удалённо на всю страну, поэтому конкуренты федеральные. Проверили около 40 компаний в шести группах: студии полного цикла для малого и среднего бизнеса, SEO- и рекламные агентства, ИИ-студии, студии MVP и приложений, «заменители агентства» (Яндекс Бизнес, конструкторы, биржи) и тех, кто работает с клиентами за рубежом. Смотрели сайты, Рейтинг Рунета (РР), профили на Workspace (WS) и Ruward, Telegram-каналы. Данные на 17.11.2026.</p>
+
+  <div class="grid3">
+    <div class="card"><h4>225 633 ₽</h4><p class="muted">средняя цена корпоративного сайта по Рейтингу Рунета; в Москве — 563 314 ₽. У +vibe — от 150 тыс.</p></div>
+    <div class="card"><h4>154 613 ₽</h4><p class="muted">средняя цена промо-сайта или лендинга по РР. У +vibe — от 60 тыс.</p></div>
+    <div class="card"><h4>362 229 ₽</h4><p class="muted">средняя цена интернет-магазина по РР. У +vibe — от 250 тыс.</p></div>
+  </div>
+  <p class="muted">+vibe дешевле среднего по рынку на 30–60%. Значит, ценой отстраиваться не нужно: ниже — только демпинг, конструкторы и биржи.</p>
+
+  <h3>Кто опаснее всего</h3>
+  <div class="grid3">
+    <div class="card"><span class="tag p0">Угроза высокая</span><h4>1PS.RU · онлайн по всей РФ</h4><p class="muted">Тот же набор обещаний, что у +vibe: «в 3 раза больше заявок с сайта за 90 дней за счёт ИИ-маркетинга», «за срыв платим неустойку». Лендинг от 54,6 тыс., SEO от 64,5 тыс. Мощная воронка: квиз с подарками, бесплатная стратегия, рассылка, агентская программа.</p></div>
+    <div class="card"><span class="tag p0">Угроза высокая</span><h4>AVAT · ИИ-студия</h4><p class="muted">«Нейросети ускоряют разработку, а люди отвечают за результат». Лендинг от 60 тыс. за 3 дня, MVP от 60 тыс. за 5 дней. Гарантия: «Не успеваем в согласованный срок — продолжаем за свой счёт». Самое близкое к +vibe позиционирование.</p></div>
+    <div class="card"><span class="tag p0">Угроза высокая в продвижении</span><h4>Kokoc и Семантика</h4><p class="muted">SEO с оплатой по факту от 40–50 тыс. в месяц (за дни в ТОП-10 и за обращения). Дочерний бренд Семантика для малого бизнеса: контекст от 15 тыс., Яндекс Бизнес «под ключ» от 30 тыс. Посадочные страницы под десятки городов.</p></div>
+    <div class="card"><span class="tag p0">Угроза высокая в нижнем сегменте</span><h4>Яндекс Бизнес, Tilda, Kwork</h4><p class="muted">Малый бизнес может вообще не идти в агентство: Яндекс Бизнес «сам запустит и настроит рекламу», Tilda с ИИ — от 500 ₽ в месяц, лендинг на Kwork — в среднем около 15,5 тыс. ₽.</p></div>
+    <div class="card"><span class="tag p0">Угроза высокая для лендингов</span><h4>Мегагрупп</h4><p class="muted">Демпинг: лендинг 6 796 ₽, магазин 8 796 ₽, 500+ сотрудников, квиз, «сайт бесплатно», реселлеры. Ценой с ними не конкурировать.</p></div>
+    <div class="card"><span class="tag p1">Угроза средняя для MVP</span><h4>РиверСофт и Мартовский Код</h4><p class="muted">MVP в той же вилке, что у +vibe: от 260–300 тыс. за 4–8 недель, РиверСофт до 600 тыс.+. У Мартовского Кода — бесплатное демо за 3–5 дней до договора. ИИ-ускорение ни один не продаёт.</p></div>
+  </div>
+
+  <h3>Группа 1. Студии полного цикла для малого и среднего бизнеса</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Компания</th><th>Цены</th><th>Обещание и сильная сторона</th><th>Как привлекают клиентов</th><th>Слабое место</th></tr></thead>
+    <tbody>
+      <tr><td><b>1PS.RU</b><br><small class="muted">1ps.ru · онлайн по РФ и СНГ · 71 чел., с 2000</small></td><td>Лендинг от 54,6 тыс., SEO «нейрооптимизация» от 64,5 тыс., ИИ-Директ от 30 тыс./мес</td><td>«В 3 раза больше заявок за 90 дней за счёт ИИ-маркетинга»; сроки в договоре, за срыв — неустойка</td><td>Квиз из 6 вопросов с подарками (ИИ-аудит + 2 000 ₽), бесплатная стратегия на 2027, калькулятор роста заявок, книги и лекции, большая рассылка, агентская программа, VK, Дзен, Rutube, бот в MAX</td><td>Конвейер, цены на разных страницах расходятся</td></tr>
+      <tr><td><b>Акцепт</b><br><small class="muted">ac-u.ru · СПб, Москва · ~20 чел., с 2004</small></td><td>WS: лендинг 100–200 тыс., корп. 400–650 тыс., магазин 0,5–1,5 млн, SEO 50–150 тыс.</td><td>«Создание и продвижение сайтов для бизнеса с гарантией», «Не нравится — возвращаем деньги»; РР-2026: №2 в корпоративных сайтах</td><td>Возврат денег, гарантия роста позиций и трафика в договоре, бесплатный расчёт и сравнение с конкурентами, ~80 кейсов на WS, отраслевые страницы, партнёрка, vc.ru, TenChat, канал основателя</td><td>Заявки не гарантируют, нет ИИ, дорого</td></tr>
+      <tr><td><b>WebCanape</b><br><small class="muted">Смоленск, Москва · 62 чел., с 2008</small></td><td>WS: лендинг 130–350 тыс., корп. 450 тыс. – 1 млн, магазин 250 тыс. – 2 млн, SEO 65–150 тыс.</td><td>Рост в поиске, рекламе, маркетплейсах и нейросетях; своя CMS в реестре ПО; РР-2026: лендинги №12</td><td>Награды, 58 кейсов на WS, блог на Sostav, vc.ru (406 подписчиков), свой фестиваль, бесплатные онлайн-инструменты, рассрочка и постоплата</td><td>Дорого для малого бизнеса</td></tr>
+      <tr><td><b>Космос-Веб</b><br><small class="muted">cosmos-web.ru · Новосибирск · 70+ чел., с 2004</small></td><td>WS: лендинг 100–190 тыс., корп. 400–750 тыс., SEO 20–60 тыс.</td><td>Цифровые задачи бизнеса и государства; РР-2026: корп. сайты №10</td><td>Награды, «700+ клиентов», отдельные страницы для Москвы и СПб, готовые решения, блог, рассылка, Telegram (255)</td><td>Уклон в госсектор, нет лид-магнитов</td></tr>
+      <tr><td><b>Киберия</b><br><small class="muted">kiberia.ru · Нижний Новгород · 7 чел., с 2019</small></td><td>WS: лендинг 25–75 тыс., корп. 100–350 тыс., SEO 35–120 тыс., Директ 25–60 тыс.</td><td>«Запускаем Яндекс Директ с KIBERIA AI-SOFT», фиксируют стоимость лида до запуска</td><td>Своё ИИ-ПО для рекламы, «лиды дешевле в 5–10 раз», KPI в договоре, бесплатный видеоаудит, канал основателя (527)</td><td>4 кейса на WS — по сути ровесник +vibe</td></tr>
+      <tr><td><b>VVERH DIGITAL</b><br><small class="muted">vverh.digital · Екатеринбург · ~15 чел.</small></td><td>WS: лендинг 300–700 тыс., SEO 80–140 тыс., GEO 80–160 тыс.</td><td>Цифровые продукты, ИИ-агенты, видимость в нейросетях (GEO)</td><td>Публикует собственные «рейтинги» на Sostav и в блоге Workspace и ставит себя первым, GEO-аудит, 21 кейс</td><td>Прямо пишут, что не дают гарантий; цены противоречат друг другу</td></tr>
+      <tr><td><b>Мегагрупп</b><br><small class="muted">megagroup.ru · СПб + 6 городов · 500+ чел.</small></td><td>Лендинг 6 796 ₽ (без скидки 16 990), магазин 8 796 ₽</td><td>«Делаем сайты, которые приносят заявки», фиксируют цену и сроки</td><td>Квиз, бесплатный «ИИ-маркетолог» и домен, акция «сайт бесплатно», таймер скидки, база знаний, email-курс, реселлерская партнёрка</td><td>Шаблонные сайты</td></tr>
+      <tr><td><b>Dextra</b><br><small class="muted">dextra.ru · Челябинск, Екб, Москва · с 2001</small></td><td>WS: лендинг 130–160 тыс., корп. 250–500 тыс., SEO 75–120 тыс.</td><td>Работает дистанционно с регионами, упор на «нерегиональные» цены; РР-2025: №1 по Челябинску</td><td>«1 600+ сайтов», кейсы и отзывы на WS, бесплатные чек-лист и аудит контекста, калькулятор, отраслевые решения</td><td>Нет ИИ, устаревший оффер</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Группа 2. SEO и реклама для малого бизнеса</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Компания</th><th>Цены</th><th>Обещание и сильная сторона</th><th>Как привлекают клиентов</th><th>Слабое место</th></tr></thead>
+    <tbody>
+      <tr><td><b>Kokoc / Семантика</b><br><small class="muted">kokoc.com, semantica.in · Москва · 24 компании, 400+ чел.</small></td><td>Kokoc: SEO с оплатой по факту от 40–50 тыс./мес. Семантика: контекст от 15 тыс., Яндекс Бизнес «под ключ» от 30 тыс.</td><td>Оплата за результат: за дни в ТОП-10, трафик, обращения</td><td>Калькулятор, страница гарантий, подарки (ссылки, статьи, аудит воронки), SEO-страницы под десятки городов, личный кабинет с отчётами, партнёрка, Telegram (2,1 тыс. и 974)</td><td>Оплату за результат дают только сайтам с трафиком и коллтрекингом</td></tr>
+      <tr><td><b>SEO.RU</b><br><small class="muted">seo.ru · 27 лет, 3 000+ проектов</small></td><td>SEO от 79,5 тыс., Директ от 49,5 тыс., сайт от 100 тыс.</td><td>Специализация на медицине, праве, финансах; финансовые гарантии</td><td>Опция оплаты за лиды, ответ за 24 часа, блог и SEO-вики, Ruward 2025 — №2, VK, YouTube</td><td>Вход вдвое выше +vibe, аудит платный</td></tr>
+      <tr><td><b>Пиксель Плюс</b><br><small class="muted">pixelplus.ru · Москва + 5 городов · 150+ чел.</small></td><td>SEO от 79,5 тыс., контекст от 29,4 тыс., сайт от 100 тыс., GEO от 129,9 тыс.</td><td>Оплата за лиды (CPA), GEO-продвижение</td><td>Аудиты, калькулятор рекламы, конференция по GEO, награды, VC.ru, YouTube-шоу, свой SaaS</td><td>Высокий порог входа</td></tr>
+      <tr><td><b>Демис Групп</b><br><small class="muted">demis.ru · Москва · 700+ чел., с 2004</small></td><td>SEO от 45 тыс. (по акции 31,6 тыс.), контекст от 100 тыс.</td><td>«№1 в России» по продвижению, фиксированная цена на 12–24 месяца</td><td>Бесплатный аудит, вебинары, своя конференция DemisConf, статьи, VK, Telegram, Дзен</td><td>Ориентир на средний и крупный бизнес</td></tr>
+      <tr><td><b>Ingate</b><br><small class="muted">ingate.ru · Москва, Тула · 25 лет</small></td><td>Не указаны</td><td>«Бизнес, усиленный Искусственным интеллектом», оплата за лиды</td><td>Бесплатный аудит, вебинары, книги, Telegram, награды 2025, SaaS для малого бизнеса</td><td>Цен нет, всё через заявку</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Группа 3. ИИ-студии и вайб-кодинг</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Компания</th><th>Цены и сроки</th><th>Обещание и сильная сторона</th><th>Как привлекают клиентов</th><th>Слабое место</th></tr></thead>
+    <tbody>
+      <tr><td><b>AVAT</b><br><small class="muted">avat.studio · Москва, СПб · на базе агентства L7</small></td><td>Лендинг от 60 тыс. за 3 дня, MVP «одна функция» от 60 тыс. за 5 дней, SaaS от 150 тыс., 2 500 ₽/ч</td><td>«Нейросети ускоряют разработку, а люди отвечают за результат»; не успели в срок — доделывают за свой счёт</td><td>Бесплатный аудит 30 минут, калькулятор, курс и кэмп по вайб-кодингу, трафик агентства L7, 4,9 на Яндекс Картах</td><td>MVP очень узкий по объёму</td></tr>
+      <tr><td><b>YappiX</b><br><small class="muted">yappix.ru · Москва</small></td><td>Сайт или MVP от 250 тыс. за 2–6 недель, SaaS 0,45–1,8 млн</td><td>«AI-First разработка продуктов для бизнеса в России», в 3–5 раз дешевле студии</td><td>SEO-статьи против классических студий, своя платформа для вайб-кодинга (бета)</td><td>~10 кейсов, нет рейтингов и лид-магнитов</td></tr>
+      <tr><td><b>Nurokod</b><br><small class="muted">nurokod.dev · город не указан</small></td><td>Прототип за 24 ч от 10 тыс., MVP от 150 тыс.</td><td>«Разработка в разы быстрее обычных студий с AI»</td><td>Свой «топ-10 MVP-студий» на Sostav с собой на 1-м месте, кейсы со сроками от 3 дней, Telegram, приём валюты и криптовалюты</td><td>Не видно команды, юрлица, отзывов</td></tr>
+      <tr><td><b>AI Builders Lab</b><br><small class="muted">aibuilderslab.ru · Москва · с 2024</small></td><td>MVP от 150 тыс. («от 5 дней»), бот от 40 тыс.</td><td>«AI-команда для каждого»</td><td>Бесплатная диагностика 45 минут, отчёт «70+ кейсов», YouTube, обучение вайб-кодингу, 18 кейсов на WS</td><td>Фокус на внедрении ИИ и обучении</td></tr>
+      <tr><td><b>Агентство «Связи»</b><br><small class="muted">svyazi-agency.ru · Москва · 8 лет</small></td><td>Лендинг 250 тыс. за 15 рабочих дней, пакет 400 тыс.</td><td>«Сайты с помощью ИИ, которые приводят заявки с первого экрана»</td><td>Логотипы крупных клиентов, 5,0 на Clutch, Яндексе и Google, экспресс-ИИ-аудит ниши, Telegram (242)</td><td>ИИ в текстах и визуале, а не в скорости; премиум-цена</td></tr>
+      <tr><td><b>Resolventa</b><br><small class="muted">resolventagroup.ru · Новосибирск, Астана · с 2012</small></td><td>MVP от 4 млн, 5–6 мес., от 3 500 ₽/ч</td><td>«AI-first», «в 5–10 раз быстрее»; РР-2025: №1 среди агентств ИИ-решений</td><td>Рейтинги, Upwork, консультация с основателем</td><td>ИИ не снизил чек</td></tr>
+      <tr><td><b>VAKAS</b><br><small class="muted">vakas.ru · Челябинск, онлайн по РФ и СНГ · 6 чел.</small></td><td>Лендинг от 100 тыс., корп. от 250 тыс., магазин от 400 тыс.</td><td>«AI-веб-студия»</td><td>Блог, кейсы, бесплатный расчёт за день, мессенджеры, гарантии (30 дней, NDA, код в Git), свой SaaS</td><td>3 отзыва, нет рейтингов</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Внизу рынка — ИИ-демпинг: AI-Dev.Pro (лендинг от 10 тыс. за 1–2 дня), «Сайты ИИ» (от 29 тыс.), «Реальный Вайб AI Studio» (MVP от 50 тыс., доводит до релиза прототипы из Cursor, Lovable и Bolt). Слово «ИИ» стало нормой, но цифр ускорения не показывает почти никто.</p>
+
+  <h3>Группа 4. MVP и мобильные приложения</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Компания</th><th>Цены и сроки</th><th>Обещание и сильная сторона</th><th>Как привлекают клиентов</th><th>Слабое место</th></tr></thead>
+    <tbody>
+      <tr><td><b>РиверСофт</b><br><small class="muted">riversoft.tech · 15+ чел.</small></td><td>«Старт» от 300 тыс., от 4 нед.; «Стандарт» от 600 тыс., от 6 нед.; бюджет фиксируют на старте</td><td>«Разработка MVP для стартапов за 6 недель» — ближе всех к офферу +vibe</td><td>Цены на сайте, кейсы с метриками, ответ за 2 часа, NDA, бесплатная консультация</td><td>ИИ не упоминают, рейтингов нет</td></tr>
+      <tr><td><b>Мартовский Код</b><br><small class="muted">march-code.ru · Новороссийск · ~7 чел.</small></td><td>MVP-ядро от 260 тыс., 6–8 нед.; бот от 65 тыс.</td><td>«От бота за 2 недели до продукта под ключ»</td><td><b>Бесплатное демо за 3–5 дней до договора и предоплаты</b>, чек-лист запуска MVP, калькулятор окупаемости, 30 минут с основателем</td><td>Микрокоманда, рейтингов нет</td></tr>
+      <tr><td><b>FITTIN</b><br><small class="muted">Воронеж · 60+ чел., с 2015</small></td><td>MVP на Flutter от 500 тыс., первая версия до 30 рабочих дней (по Sostav)</td><td>Ритейл и e-commerce</td><td>Первые места в отраслевых подкатегориях РР, кейсы за 21–30 дней</td><td>Узкая ниша ритейла</td></tr>
+      <tr><td><b>X Studio</b><br><small class="muted">xstudio.pro · Москва · 15+ чел.</small></td><td>WS: приложение 0,6–3 млн, 3 000–4 000 ₽/ч; no-code MVP от 3 нед.</td><td>Решения для стартапов</td><td>Логотипы банков, бесплатный расчёт и аудит, 2 мес. гарантии</td><td>Цен на сайте нет, рейтингов нет</td></tr>
+      <tr><td><b>AppFox</b><br><small class="muted">appfox.ru · Москва · 100+ чел.</small></td><td>MVP от 1 млн, около 3 мес.</td><td>«Создаём приложения и игры в 2 раза быстрее»</td><td>РР-2026: №5 в мобильной разработке (Москва), 14 наград, Сколково, калькулятор, гайд в обмен на контакт, Telegram (404), 3 мес. бесплатного исправления ошибок</td><td>Дорого и долго для стартапа</td></tr>
+      <tr><td><b>AppCraft</b><br><small class="muted">appcraft.pro · Москва · 20+ чел.</small></td><td>Приложение от 1 млн (2–4 мес.), большинство проектов 2,5–15 млн</td><td>Мобильные приложения и сложные системы; РР-2026: №2 в категории «ИИ»</td><td>52 награды, калькулятор, оценка за 24 часа, 6 мес. бесплатной поддержки</td><td>Чек и сроки в 2–3 раза выше</td></tr>
+      <tr><td><b>Purrweb</b><br><small class="muted">purrweb.com · Омск + офис в ОАЭ · ~100 чел.</small></td><td>MVP 2,1–3,2 млн ₽ + дизайн</td><td>«От идеи до рабочего приложения — за недели»</td><td>Clutch 4.9, рейтинги РФ, калькулятор, бесплатное мини-проектирование за 3 дня, смета за 48 ч, NDA до звонка, вебинары в Telegram</td><td>Дорого, 3–4 месяца</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Группа 5. Заменители агентства</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Игрок</th><th>Цена для клиента</th><th>Что обещает</th><th>Как привлекает клиентов</th><th>Слабое место</th></tr></thead>
+    <tbody>
+      <tr><td><b>Яндекс Бизнес</b></td><td>Подписка на 90–360 дней, цена индивидуальная (пример: кафе 5–11 тыс./мес)</td><td>«Сам запустит и настроит рекламу в интернете»</td><td>Бесплатная карточка в Картах как вход, объявления создаются автоматически, Telegram «Яндекс для предпринимателей» (77,6 тыс.)</td><td>Нет сайта, SEO и стратегии; «чёрный ящик»</td></tr>
+      <tr><td><b>Tilda</b></td><td>0 / 500 / 1 000 ₽ в месяц (при оплате за год)</td><td>Сайт с помощью ИИ, вайб-кодинг</td><td>Курсы, Tilda School, каталог Tilda Experts (1 000+ дизайнеров, бриф рассылается подходящим, комиссии нет)</td><td>Сайт сам не приносит заявок</td></tr>
+      <tr><td><b>Craftum, Nethouse</b></td><td>Craftum от 199 ₽/мес; Nethouse бесплатно, «сайт под ключ» от 9 990 ₽</td><td>Сайт без программистов, ИИ-генератор лендинга за 3 минуты</td><td>Шаблоны, Telegram (Craftum 4,1 тыс.), партнёрам Nethouse — 30% платежей</td><td>Нет маркетинга, шаблонность</td></tr>
+      <tr><td><b>Kwork, FL.ru</b></td><td>Лендинг на Kwork 1–45 тыс. (медиана ~15,5 тыс.), настройка Директа медиана ~5 тыс. разово</td><td>Любая услуга с фиксированной ценой</td><td>Гарантия возврата, SEO-страницы под каждый запрос, отзывы; FL — «безопасная сделка» 7–20%</td><td>Разовая работа, за заявки никто не отвечает</td></tr>
+      <tr><td><b>Профи.ру</b></td><td>Лендинг 5,4–32,5 тыс. (Москва)</td><td>Разместите заказ бесплатно — специалисты откликнутся сами</td><td>Рейтинги, проверка паспорта, у части исполнителей страховка ответственности</td><td>Маркетинговую экспертизу никто не проверяет</td></tr>
+      <tr><td><b>PromoPult, eLama</b></td><td>Директ от 1 300 ₽ бюджета; инструменты eLama бесплатные</td><td>ИИ-автопилот рекламы; бесплатные инструменты</td><td>Бонусы к рекламному бюджету, бесплатная настройка первой кампании, кешбэк, вебинары и курсы, партнёрские программы для агентств, Telegram eLama (16,8 тыс.)</td><td>Клиент всё делает сам</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Группа 6. Для клиентов за рубежом</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Компания</th><th>Цены</th><th>Кому и что обещает</th><th>Как привлекают клиентов</th><th>Слабое место</th></tr></thead>
+    <tbody>
+      <tr><td><b>Darvin Digital / BeOnTop</b><br><small class="muted">Москва, СПб, Дубай · 60+ чел.</small></td><td>ОАЭ: SEO от 3–4 тыс. AED/мес, сайт от 3 тыс. AED</td><td>«№1 Digital агентство в Дубае»: SEO, контекст, сайты</td><td>Workspace Awards, кейсы по ОАЭ, бесплатный аудит, сайт на 3 языках, WhatsApp</td><td>Акцент на SEO, юрлицо не раскрыто</td></tr>
+      <tr><td><b>WebMedia Global</b><br><small class="muted">Тбилиси, Батуми · 40 чел.</small></td><td>Сайт от $1 000, магазин от $2 500, приложение от $5 000</td><td>Клиенты из 10+ стран</td><td>Clutch, Sortlist, кейсы на WS, Telegram, LinkedIn; договоры через компанию в Гонконге</td><td>Не нацелены на релокантов</td></tr>
+      <tr><td><b>Ronas IT</b><br><small class="muted">юрлицо в Эстонии · 60+ чел.</small></td><td>Приложение $25–60 тыс.+, лендинг $2–5 тыс.</td><td>Стартапы по всему миру; услуга «Vibe Coding Rescue»</td><td>Upwork 4.8 (656 отзывов), Clutch, GoodFirms</td><td>Работают на Запад, не на русскоязычный малый бизнес</td></tr>
+      <tr><td><b>ArtBull</b><br><small class="muted">Алматы · 15+ чел.</small></td><td>Лендинг от 150 тыс. ₸, Google Ads от 150 тыс. ₸/мес</td><td>Местный малый бизнес Казахстана</td><td>Google Partner, 5.0 в 2GIS и Google, калькулятор с ответом в мессенджер</td><td>Только местный рынок</td></tr>
+    </tbody>
+  </table></div>
+
+  <details>
+    <summary>Местная конкуренция в Челябинске (для встреч и рекомендаций)</summary>
+    <p>Если клиенты из Челябинска ищут студию в своём городе, рядом окажутся: «спецайти» (spec-ai.ru, лендинг от 50 тыс., калькулятор, 8 человек, с 2025), VAKAS («AI-веб-студия», лендинг от 100 тыс.), CREATIVE (creative.bz, «финансовые гарантии выполнения KPI», 3-е место в РР-2026 в своей категории), Dextra (№1 РР-2025 по Челябинску), Флексайтс (flexites.org, открытые тарифы на продвижение 40 / 60 / 160 тыс. в месяц), Ranx (Битрикс, 49 кейсов на WS). Сильный местный канал у них — рейтинги и отраслевые страницы для медицины; контент и Telegram слабые.</p>
+  </details>
+
+  <h3>Карта цен на сайты</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Компания</th><th class="r">Лендинг</th><th class="r">Корп. сайт</th><th class="r">Магазин</th><th class="r">SEO в месяц</th></tr></thead>
+    <tbody>
+      <tr><td>Конструктор (Tilda, Craftum)</td><td class="r">0,2–1,25 тыс./мес</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+      <tr><td>Мегагрупп</td><td class="r">6,8 тыс.</td><td class="r">—</td><td class="r">8,8 тыс.</td><td class="r">—</td></tr>
+      <tr><td>Kwork (медиана)</td><td class="r">~15,5 тыс.</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+      <tr><td>1PS.RU</td><td class="r">от 54,6 тыс.</td><td class="r">—</td><td class="r">—</td><td class="r">от 64,5 тыс.</td></tr>
+      <tr><td>AVAT (ИИ)</td><td class="r">от 60 тыс.</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+      <tr class="total"><td>+vibe</td><td class="r">от 60 тыс.</td><td class="r">от 150 тыс.</td><td class="r">от 250 тыс.</td><td class="r">от 40 тыс.</td></tr>
+      <tr><td>Киберия (WS)</td><td class="r">25–75 тыс.</td><td class="r">100–350 тыс.</td><td class="r">150–750 тыс.</td><td class="r">35–120 тыс.</td></tr>
+      <tr><td>Средняя по РР</td><td class="r">154,6 тыс.</td><td class="r">225,6 тыс.</td><td class="r">362,2 тыс.</td><td class="r">—</td></tr>
+      <tr><td>Космос-Веб (WS)</td><td class="r">100–190 тыс.</td><td class="r">400–750 тыс.</td><td class="r">—</td><td class="r">20–60 тыс.</td></tr>
+      <tr><td>Акцепт (WS)</td><td class="r">100–200 тыс.</td><td class="r">400–650 тыс.</td><td class="r">0,5–1,5 млн</td><td class="r">50–150 тыс.</td></tr>
+      <tr><td>WebCanape (WS)</td><td class="r">130–350 тыс.</td><td class="r">450 тыс. – 1 млн</td><td class="r">250 тыс. – 2 млн</td><td class="r">65–150 тыс.</td></tr>
+      <tr><td>Агентство «Связи» (ИИ)</td><td class="r">250 тыс.</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Карта цен на MVP</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Компания</th><th class="r">Цена MVP</th><th class="r">Срок</th><th>Продаёт ИИ-ускорение?</th></tr></thead>
+    <tbody>
+      <tr><td>AVAT, Nurokod, AI Builders Lab</td><td class="r">60–150 тыс.</td><td class="r">5 дней – 2 нед.</td><td>Да, но MVP из одной функции</td></tr>
+      <tr><td>YappiX</td><td class="r">от 250 тыс.</td><td class="r">2–6 нед.</td><td>Да</td></tr>
+      <tr><td>Мартовский Код</td><td class="r">от 260 тыс.</td><td class="r">6–8 нед.</td><td>Нет</td></tr>
+      <tr><td>РиверСофт</td><td class="r">300–600 тыс.+</td><td class="r">4–6+ нед.</td><td>Нет</td></tr>
+      <tr><td>FITTIN</td><td class="r">от 500 тыс.</td><td class="r">до 30 раб. дней</td><td>Нет</td></tr>
+      <tr class="total"><td>+vibe (рекомендуемая цена)</td><td class="r">0,5–1,2 млн</td><td class="r">4–8 нед.</td><td>Да, с senior-ревью и публикацией в сторах</td></tr>
+      <tr><td>X Studio (WS)</td><td class="r">0,6–3 млн</td><td class="r">4–6 нед.</td><td>Нет</td></tr>
+      <tr><td>AppFox, AppCraft</td><td class="r">от 1 млн</td><td class="r">2–4 мес.</td><td>AppFox — «в 2 раза быстрее» без ИИ</td></tr>
+      <tr><td>Purrweb</td><td class="r">2,1–3,2 млн</td><td class="r">3–4 мес.</td><td>Нет</td></tr>
+      <tr><td>Resolventa</td><td class="r">от 4 млн</td><td class="r">5–6 мес.</td><td>Да, но чек не снизился</td></tr>
+    </tbody>
+  </table></div>
+  <p>Полноценный MVP за 0,5–1,5 млн с открытым ИИ-ускорением никто не продаёт: ИИ-студии делают MVP из одной функции за 60–250 тыс., а классические студии берут от 1 млн и от 3 месяцев. Это самое свободное место на карте.</p>
+
+  <h3>Как конкуренты продвигаются: сводка каналов</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Канал</th><th>Кто использует</th><th>Вывод для +vibe</th></tr></thead>
+    <tbody>
+      <tr><td><b>Рейтинги и каталоги</b> (РР, Workspace, Ruward, Tagline)</td><td>Почти все лидеры. Отраслевые подкатегории дают «№1»: FITTIN (ритейл), Resolventa (ИИ-решения), Акцепт (№2 в корп. сайтах)</td><td>Профили на Workspace и Ruward сразу; заявка в РР-2027 в узких категориях («Лендинги», «ИИ-решения», мобильная разработка)</td></tr>
+      <tr><td><b>Кейсы на Workspace</b></td><td>Акцепт ~80, WebCanape 58, Bodysite 54, Ranx 49, AI Builders Lab 18</td><td>Каждый проект — кейс с цифрами сроков и заявок: «сайт за 18 дней, заявка по 900 ₽»</td></tr>
+      <tr><td><b>Квизы, калькуляторы, подарки</b></td><td>1PS (квиз + ИИ-аудит + 2 000 ₽), Мегагрупп, Kokoc и Семантика, AppCraft (оценка за 24 ч), Purrweb (смета за 48 ч)</td><td>Калькулятор у +vibe уже есть. Добавить квиз «подберём решение» и смету MVP за 48 часов</td></tr>
+      <tr><td><b>Бесплатное демо или прототип</b></td><td>Мартовский Код (демо за 3–5 дней до предоплаты), Purrweb (мини-проектирование за 3 дня), Nurokod (прототип за 24 ч за 10 тыс.)</td><td>Для ИИ-студии это лучшее доказательство скорости: «главная страница за 48 часов» до договора</td></tr>
+      <tr><td><b>Гарантии</b></td><td>1PS (неустойка за срыв срока), AVAT (доделывают за свой счёт), Акцепт (возврат денег), CREATIVE (финансовые KPI), AppFox и AppCraft (3–6 мес. исправления ошибок)</td><td>Гарантия срока уже есть у конкурентов. Отличаться конкретикой: размер компенсации в договоре, срок в днях на каждом пакете, публичная статистика «сдано в срок»</td></tr>
+      <tr><td><b>Оплата за результат</b></td><td>Kokoc (от 40 тыс., только сайты с трафиком), Пиксель Плюс, Ingate, SEO.RU, Киберия (фикс цены лида)</td><td>Свободно: оплата за заявки для новых сайтов и маленьких бюджетов</td></tr>
+      <tr><td><b>Региональные посадочные страницы</b></td><td>Kokoc (Нижний Новгород, Сочи, Воронеж, Красноярск и др.), Космос-Веб (Москва, СПб)</td><td>Сделать страницы «разработка сайтов в [городе]» для 15–20 городов-миллионников — дешёвый SEO-трафик со всей России</td></tr>
+      <tr><td><b>Самоизданные «рейтинги»</b></td><td>Nurokod, VVERH DIGITAL, Purrweb — на Sostav, vc.ru и в своих блогах ставят себя первыми</td><td>Работает на поиск и ответы нейросетей, но Sostav уже помечает такие тексты как «не независимые». Лучше честные сравнения и разборы</td></tr>
+      <tr><td><b>Партнёрские программы</b></td><td>1PS, Акцепт, Семантика, Мегагрупп (реселлеры), Nethouse (30%), eLama и PromoPult (для агентств)</td><td>Наша партнёрка на 10% — норма рынка. Подключиться к партнёрским программам рекламных платформ</td></tr>
+      <tr><td><b>Вебинары, конференции, обучение</b></td><td>Демис (DemisConf), Пиксель Плюс (GEO), WebCanape (свой фестиваль), AVAT и AI Builders Lab (курсы по вайб-кодингу), eLama, PromoPult</td><td>Позже: открытый вебинар «Как запустить MVP за 6 недель с ИИ»</td></tr>
+      <tr><td><b>Бесплатные инструменты и SaaS</b></td><td>WebCanape (генераторы), Пиксель Tools, Ingate, Киберия (AI-SOFT), YappiX (платформа)</td><td>Наш инструмент — Brandyx. Подавать как собственную платформу агентства</td></tr>
+      <tr><td><b>Telegram и личный бренд</b></td><td>У студий 200–4 400 подписчиков; самые большие каналы — у платформ (Яндекс 77,6 тыс., eLama 16,8 тыс.); у основателей — 200–530</td><td>Живой канал основателя про ИИ-разработку с цифрами почти не встретит конкуренции</td></tr>
+      <tr><td><b>Площадки-маркетплейсы</b></td><td>Tilda Experts (без комиссии), Kwork, Профи.ру, Яндекс Услуги</td><td>Попасть в Tilda Experts бесплатно; на Kwork и Профи — пакеты как дешёвый вход в воронку</td></tr>
+      <tr><td><b>GEO: видимость в ответах нейросетей</b></td><td>Пиксель Плюс (от 129,9 тыс.), WebCanape, VVERH, AVAT (от 30 тыс.), 1PS («нейрооптимизация»)</td><td>Уже стандарт для SEO 2026. Включить базовую GEO-оптимизацию в SEO от 40 тыс.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Рекламу конкурентов в Яндекс Директе вживую не проверяли. Это стоит сделать вручную: посмотреть рекламу в выдаче Яндекса по запросам «разработка сайтов», «создание MVP», «SEO продвижение» или воспользоваться сервисом анализа конкурентов в контекстной рекламе.</p>
+
+  <h3>Где свободное место для +vibe</h3>
+  <div class="grid2">
+    <div class="card lime">
+      <h4>Чего на рынке нет или почти нет</h4>
+      <ul>
+        <li><b>Полноценный MVP за 0,5–1,5 млн за 4–8 недель с ИИ-ускорением:</b> ИИ-студии делают MVP из одной функции, классические — от 1 млн и 3 месяцев без ИИ.</li>
+        <li><b>ИИ с доказательствами:</b> все пишут «с ИИ», но никто не показывает цифры — сколько часов и дней сэкономлено, таймлапс сборки.</li>
+        <li><b>Оплата за заявки для новых сайтов и маленьких бюджетов:</b> Kokoc берёт только сайты с трафиком, у 1PS нужен рекламный бюджет от 30 тыс.</li>
+        <li><b>Публичная статистика сдачи в срок</b> и размер компенсации прямо на странице пакета.</li>
+        <li><b>Пакет для микробизнеса</b> «сайт + Яндекс Бизнес или Директ + отчёт в заявках» (Семантика продаёт только настройку Яндекс Бизнеса).</li>
+        <li><b>MVP под гранты и акселераторы</b> (ФСИ, Сколково) — отдельным пакетом это никто не продаёт.</li>
+        <li><b>Своя AI-платформа для контента</b> после запуска сайта (Brandyx).</li>
+        <li><b>Пакет «мультиязычный сайт + Google Ads»</b> для русскоязычного бизнеса за рубежом с ценами в местной валюте.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Что скопировать у конкурентов</h4>
+      <ul>
+        <li>Бесплатное демо за 3–5 дней до предоплаты (Мартовский Код).</li>
+        <li>Квиз с подарком и бесплатная стратегия (1PS).</li>
+        <li>Смета за 48 часов, мини-проектирование, NDA до звонка (Purrweb).</li>
+        <li>Цены и сроки пакетов прямо на сайте (РиверСофт, AVAT, 1PS).</li>
+        <li>Гарантии в договоре: неустойка, возврат денег, 3–6 месяцев исправления ошибок.</li>
+        <li>Посадочные страницы под крупные города (Kokoc).</li>
+        <li>Профили и кейсы на Workspace, заявки в узкие категории Рейтинга Рунета.</li>
+        <li>Бесплатная настройка в Tilda Experts и пакеты на Kwork и Профи как вход в воронку.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout lime"><b>Что это меняет в УТП.</b> «Срок в договоре» и даже неустойку за просрочку уже предлагают 1PS.RU и AVAT, Акцепт возвращает деньги, а «ИИ» есть почти у всех. Поэтому УТП +vibe должно быть конкретным и проверяемым: (1) срок в днях на каждом пакете, размер компенсации в договоре и публичная статистика сдачи в срок; (2) ИИ с цифрами — сколько дней и часов сэкономили на каждом проекте; (3) полноценный MVP за 0,5–1,2 млн за 4–8 недель — средний сегмент, где ИИ-ускорение никто не продаёт; (4) заявки для новых сайтов и маленьких бюджетов; (5) Brandyx после запуска. Отдельно про название: у Ronas IT есть услуга «Vibe Coding Rescue», есть студия «Реальный Вайб» — при выборе домена и SEO-названия стоит проверить, не путают ли бренды в поиске.</div>
+</section>
+
+<!-- 4. AUDIENCE -->
+<section id="audience">
+  <span class="eyebrow">Раздел 4</span>
+  <h2>Анализ целевой аудитории</h2>
+  <p class="lead">Восемь сегментов, из них на старте берём три. Приоритет — по сочетанию бюджета, скорости решения и того, насколько нам легко доказать ценность прямо сейчас.</p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Сегмент</th><th>Бюджет</th><th>Главная боль</th><th>Где найти</th><th>Цикл сделки</th><th>Приоритет</th></tr></thead>
+    <tbody>
+      <tr><td><b>1. Сервисный малый бизнес в РФ</b> (клиники, юристы, салоны, автосервисы, ремонт, образование)</td><td class="r">60–250 тыс. ₽ + 30–80 тыс./мес</td><td>Заявки дорожают, сайт устарел, прошлый подрядчик пропал, непонятно, работает ли реклама</td><td>Яндекс, 2ГИС, Авито Услуги, бизнес-чаты, рекомендации, бизнес-клубы</td><td>1–3 недели</td><td><span class="tag p2">Старт</span></td></tr>
+      <tr><td><b>2. Стартапы и предприниматели с продуктом</b> (MVP приложения или сервиса)</td><td class="r">400 тыс. – 1,5 млн ₽</td><td>Быстро проверить гипотезу, найти надёжную команду, уложиться в грант или раунд</td><td>Сколково, акселераторы, гранты ФСИ, Telegram-сообщества стартапов</td><td>2–6 недель</td><td><span class="tag p2">Старт</span></td></tr>
+      <tr><td><b>3. Русскоязычный бизнес за рубежом</b> (Казахстан, Узбекистан, Армения, Грузия, Сербия, Кипр, ОАЭ, Турция)</td><td class="r">$1,5–15 тыс.</td><td>Местные агентства дорогие или слабые, хочется работать на русском, нужен сайт на 2–3 языках и Google Ads</td><td>Telegram-чаты предпринимателей, знакомства, LinkedIn, партнёры по релокации и бухгалтерии</td><td>2–4 недели</td><td><span class="tag p2">Старт</span></td></tr>
+      <tr><td>4. Средний B2B и производство Урала</td><td class="r">300 тыс. – 1,5 млн ₽</td><td>Устаревший сайт, нужен каталог, интеграция с 1С, сайт для экспорта</td><td>Отраслевые выставки, ТПП, тендерные площадки, LinkedIn/TenChat</td><td>1–3 месяца</td><td><span class="tag p1">2-й квартал</span></td></tr>
+      <tr><td>5. Онлайн-школы и эксперты</td><td class="r">80–400 тыс. ₽</td><td>Воронки, лендинги под запуски, приложение для учеников</td><td>Telegram, VK, тусовки продюсеров</td><td>1–2 недели</td><td><span class="tag p1">2-й квартал</span></td></tr>
+      <tr><td>6. Другие агентства (white-label)</td><td class="r">1 800–2 200 ₽/час</td><td>Перегруз, нужен надёжный подрядчик под своим брендом</td><td>Чаты агентств, рейтинги, личные контакты</td><td>1–2 недели</td><td><span class="tag p2">Старт — для загрузки</span></td></tr>
+      <tr><td>7. Селлеры маркетплейсов, которым нужен свой магазин</td><td class="r">250–600 тыс. ₽</td><td>Зависимость от площадки, комиссии</td><td>Сообщества селлеров, курсы</td><td>2–4 недели</td><td><span class="tag p1">Позже</span></td></tr>
+      <tr><td>8. Западный малый бизнес (США, ЕС)</td><td class="r">$3–30 тыс.</td><td>Дорогие местные агентства</td><td>Clutch, LinkedIn, рекомендации</td><td>1–2 месяца</td><td><span class="tag p0">Не сейчас</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Сегмент 8 отложен: Upwork закрыт для РФ с 2022 года, нет платёжной инфраструктуры и кейсов для западного клиента. Возвращаемся к нему через партнёрское юрлицо и 5–10 англоязычных кейсов.</p>
+
+  <h3>Портреты клиентов</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Владелица стоматологии, 38 лет, Челябинск</h4>
+      <p><b>Ситуация:</b> 2 кресла, сайт 2019 года на конструкторе, заявки из Директа по 2 500 ₽ и дорожают.</p>
+      <p><b>Хочет:</b> чтобы телефон звонил, а не «красивый сайт». Боится снова потерять деньги на агентстве.</p>
+      <p><b>Решает:</b> сама, за 1–2 встречи, если видит кейс из своей ниши и цену заявки до/после.</p>
+      <p><b>Что ей продаём:</b> сайт с онлайн-записью за 21 день + реклама с отчётом по заявкам. Гарантия срока.</p>
+    </div>
+    <div class="card">
+      <h4>Фаундер стартапа, 29 лет, есть грант или пре-сид</h4>
+      <p><b>Ситуация:</b> есть идея и 1–1,5 млн ₽, нужно MVP за 2 месяца, чтобы показать инвесторам.</p>
+      <p><b>Хочет:</b> скорость, понятный бюджет, возможность менять продукт по ходу.</p>
+      <p><b>Решает:</b> сам или с сооснователем, сравнивает 3–5 команд, смотрит на процесс и людей.</p>
+      <p><b>Что ему продаём:</b> MVP за 6 недель с ИИ-ускорением, спринты с демо каждую неделю, код в его репозитории.</p>
+    </div>
+    <div class="card">
+      <h4>Владелец бизнеса в Алматы или Дубае, 34 года, переехал 2–3 года назад</h4>
+      <p><b>Ситуация:</b> салон, клиника, агентство недвижимости или школа. Местные агентства просят $10–20 тыс.</p>
+      <p><b>Хочет:</b> работать на русском, сайт на 2–3 языках, Google Ads и карты, оплату в местной валюте.</p>
+      <p><b>Решает:</b> быстро, по рекомендации из чата земляков.</p>
+      <p><b>Что ему продаём:</b> мультиязычный сайт за $2–5 тыс. + продвижение $600–1 200/мес.</p>
+    </div>
+    <div class="card">
+      <h4>Коммерческий директор завода, 45 лет, Урал</h4>
+      <p><b>Ситуация:</b> сайт без каталога, менеджеры отправляют прайсы в Excel, планы на Казахстан и Китай.</p>
+      <p><b>Хочет:</b> каталог с 1С, сайт на английском и китайском, заявки от дилеров.</p>
+      <p><b>Решает:</b> долго, с собственником и ИТ, иногда через тендер.</p>
+      <p><b>Что ему продаём:</b> B2B-каталог + экспортная версия + помощь с господдержкой экспорта.</p>
+    </div>
+  </div>
+
+  <h3>Что клиент на самом деле покупает (задачи клиента)</h3>
+  <ul>
+    <li>«Хочу больше заявок и знать, сколько стоит каждая» — главный мотив для сервисного бизнеса.</li>
+    <li>«Хочу запуститься быстро и не провалить сроки» — стартапы и сезонный бизнес.</li>
+    <li>«Хочу один подрядчик, который отвечает за всё» — устали от связки дизайнер + программист + таргетолог.</li>
+    <li>«Хочу не бояться, что исполнитель пропадёт» — нужны договор, гарантии, юрлицо, доступы и код у клиента.</li>
+    <li>«Хочу выйти на новый рынок» — экспорт и бизнес за рубежом: языки, локальное SEO, оплата.</li>
+  </ul>
+</section>
+
+<!-- 4. USP -->
+<section id="usp">
+  <span class="eyebrow">Раздел 5</span>
+  <h2>Варианты УТП: чем можем отличаться</h2>
+  <p class="lead">Восемь вариантов с оценкой от 1 до 5. «Доказуемость сейчас» — можем ли подтвердить обещание без истории агентства. «Риск» — чем выше балл, тем риск ниже.</p>
+  <div class="grid2" id="uspGrid"></div>
+
+  <h3>Рекомендация: собрать УТП из трёх слоёв</h3>
+  <div class="grid3">
+    <div class="card dark"><h4 style="color:var(--lime)">Как работаем (ядро)</h4><p>AI-скорость с гарантией срока. Лендинг за 7–10 рабочих дней, сайт за 21 день, MVP за 6 недель. Срок в договоре, за каждую неделю просрочки по нашей вине — минус 5% от цены этапа (не больше 25%).</p></div>
+    <div class="card lime"><h4>Что получает клиент сверх сайта</h4><p>Доводим до заявок: аналитика с первого дня, отчёт по цене заявки и 3 месяца Brandyx в подарок — бренд-профиль, тон голоса и контент-план для соцсетей на собственной AI-платформе команды.</p></div>
+    <div class="card"><h4>Для кого</h4><p>Сервисный бизнес и стартапы в РФ + русскоязычные предприниматели за рубежом. Через 3–6 месяцев — 1–2 ниши с кейсами (например, медицина и B2B) и экспортное направление для производств Урала.</p></div>
+  </div>
+
+  <div class="callout lime">
+    <b>Формулировка УТП:</b> +vibe — AI-студия, которая запускает сайты и приложения в 2–3 раза быстрее обычных студий, фиксирует срок в договоре и доводит проект до заявок. Для бизнеса в России и русскоязычных предпринимателей за рубежом.
+  </div>
+
+  <p class="muted">Важно: неустойку за срыв срока уже обещает 1PS.RU, «доделаем за свой счёт» — AVAT, а «ИИ» есть почти у всех. Поэтому УТП работает, только если оно конкретное: срок в днях, размер компенсации, цифры ускорения и отчёт в заявках — подробнее в <a href="#competitors">разделе «Конкуренты»</a>.</p>
+
+  <h4>Варианты заголовка первого экрана</h4>
+  <ol>
+    <li>«Сайт за 21 день. Срок — в договоре. Заявки — в отчёте.»</li>
+    <li>«Запускаем сайты и приложения в 2 раза быстрее с ИИ — и отвечаем за срок рублём»</li>
+    <li>«AI-студия полного цикла: от идеи до первых заявок за 30 дней»</li>
+    <li>Для зарубежья: «Russian-speaking product team. EU quality, CIS pricing, your time zone.»</li>
+  </ol>
+  <p class="muted">Важно: «в 2–3 раза быстрее» можно писать только после того, как процесс реально даёт такие сроки на 3–5 проектах. Сравнительные утверждения в рекламе должны быть проверяемыми. До этого — конкретные сроки без сравнения.</p>
+
+  <h4>Что поменять на сайте под новое УТП</h4>
+  <ul>
+    <li>Первый экран: заголовок про срок и заявки, под ним 3 факта (срок в договоре, код ваш, 60 дней гарантии).</li>
+    <li>Новый блок «Как ИИ ускоряет работу и почему это не снижает качество»: ИИ пишет черновики, senior-разработчик ревьюит каждый коммит, тесты.</li>
+    <li>Блок «Гарантии» и «Команда», реальные кейсы с цифрами.</li>
+    <li>Пакеты с фиксированным сроком вместо «от X ₽» (см. бизнес-модель).</li>
+    <li>Страница /en и страница «Для бизнеса за рубежом» с ценами в $.</li>
+  </ul>
+</section>
+
+<!-- 5. BUSINESS MODEL -->
+<section id="model">
+  <span class="eyebrow">Раздел 6</span>
+  <h2>Бизнес-модель</h2>
+
+  <h3>Канва бизнес-модели</h3>
+  <div class="canvas">
+    <div class="cv kp"><h4>Ключевые партнёры</h4><ul><li>Фрилансеры-маркетологи, дизайнеры, SEO-специалисты (реферальные 10%)</li><li>Другие агентства (white-label)</li><li>Brandyx — своя AI-платформа</li><li>Бухгалтеры и консультанты для МСП</li><li>Партнёр-юрлицо за рубежом для платежей</li><li>Центр поддержки экспорта региона</li></ul></div>
+    <div class="cv ka"><h4>Ключевые действия</h4><ul><li>Продажи и партнёрства</li><li>Разработка с ИИ-ускорением</li><li>Продвижение и аналитика</li><li>Упаковка кейсов</li></ul></div>
+    <div class="cv kr"><h4>Ключевые ресурсы</h4><ul><li>5 разработчиков, 2 менеджера</li><li>Опыт руководителя: 72 проекта в год</li><li>Библиотека компонентов и ИИ-пайплайн</li><li>Brandyx и сеть Сколково</li></ul></div>
+    <div class="cv vp"><h4>Ценностное предложение</h4><ul><li>Запуск в 2–3 раза быстрее за счёт ИИ</li><li>Срок и цена в договоре, компенсация за просрочку</li><li>Один подрядчик: сайт, приложение, SEO, реклама, аналитика</li><li>Отчёт в заявках и рублях</li><li>Brandyx: контент на автопилоте после запуска</li><li>Для зарубежья: русский язык, цена СНГ, 2–3 языка сайта</li></ul></div>
+    <div class="cv cr"><h4>Отношения с клиентами</h4><ul><li>Личный менеджер</li><li>Еженедельные демо</li><li>Ежемесячный отчёт</li><li>Подписка после запуска</li></ul></div>
+    <div class="cv ch"><h4>Каналы</h4><ul><li>Тёплая сеть и рекомендации</li><li>Партнёры и white-label</li><li>Площадки и тендеры</li><li>Видео-аудиты</li><li>Контент и Директ</li></ul></div>
+    <div class="cv cs"><h4>Сегменты клиентов</h4><ul><li>Сервисный малый бизнес РФ</li><li>Стартапы с MVP</li><li>Русскоязычный бизнес за рубежом</li><li>Позже: B2B Урала, онлайн-школы, экспортёры</li></ul></div>
+    <div class="cv co"><h4>Структура затрат</h4><ul><li>Переменные (≈ 72% выручки проекта): разработчики, комиссии, ведение, резерв, налоги</li><li>Постоянные ≈ 186 тыс. ₽/мес: оклады менеджеров, маркетинг, софт, бухгалтерия, юрист</li></ul></div>
+    <div class="cv rs"><h4>Потоки выручки</h4><ul><li>Проекты разработки (разовые, 60 тыс. – 1,5 млн ₽)</li><li>Подписки: поддержка, SEO, реклама, контент (10–80 тыс. ₽/мес)</li><li>Сайт по подписке (19,9–34,9 тыс. ₽/мес, 12 мес)</li><li>White-label часы для агентств</li><li>Комиссия за ведение рекламных бюджетов</li><li>Продуктовые решения: Telegram Mini Apps, ИИ-боты</li></ul></div>
+  </div>
+
+  <h3>Лестница продуктов</h3>
+  <p>Клиент заходит через дешёвый шаг, получает пользу и поднимается выше. Цель — чтобы 30–40% клиентов после проекта остались на подписке.</p>
+  <div class="ladder">
+    <div class="step"><span class="i">0</span><div><b>Видео-аудит сайта или рекламы</b><br><small>5 минут видео: 3 проблемы и как их решить. Лид-магнит</small></div><span class="p">0 ₽</span></div>
+    <div class="step"><span class="i">1</span><div><b>Экспресс-аудит + прототип главной</b><br><small>Засчитывается в стоимость проекта, если клиент продолжает</small></div><span class="p">9 900 ₽</span></div>
+    <div class="step"><span class="i">2</span><div><b>Пакеты разработки с фиксированным сроком</b><br><small>«Старт за 10 дней», «Бизнес-сайт за 21 день», «Магазин за 35 дней», «MVP за 6 недель»</small></div><span class="p">60 тыс. – 1,2 млн ₽</span></div>
+    <div class="step"><span class="i">3</span><div><b>Подписка «Рост»</b><br><small>Поддержка + SEO или реклама + контент через Brandyx + отчёт</small></div><span class="p">30–80 тыс. ₽/мес</span></div>
+    <div class="step"><span class="i">4</span><div><b>Сложные продукты и экспорт</b><br><small>Приложения, B2B-каталоги с 1С, мультиязычные сайты</small></div><span class="p">от 600 тыс. ₽</span></div>
+  </div>
+
+  <h3>Пакеты и цены</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Пакет</th><th>Срок</th><th class="r">РФ</th><th class="r">Зарубежье</th><th>Что внутри</th></tr></thead>
+    <tbody>
+      <tr><td>Старт (лендинг)</td><td>7–10 рабочих дней</td><td class="r">60–90 тыс. ₽</td><td class="r">$900–1 500</td><td>Структура, дизайн, адаптив, форма → CRM/Telegram, аналитика</td></tr>
+      <tr><td>Бизнес-сайт</td><td>21 день</td><td class="r">150–250 тыс. ₽</td><td class="r">$2 500–5 000</td><td>До 10 страниц, панель управления, SEO-основа, 2 языка для зарубежья</td></tr>
+      <tr><td>Магазин</td><td>35 дней</td><td class="r">250–450 тыс. ₽</td><td class="r">$4 000–9 000</td><td>Каталог, оплата, доставка, CRM, личный кабинет</td></tr>
+      <tr><td>MVP приложения</td><td>6 недель</td><td class="r">500 тыс. – 1,2 млн ₽</td><td class="r">$8 000–20 000</td><td>Кроссплатформа, 5–10 экранов, сервер, публикация в сторах</td></tr>
+      <tr><td>Telegram Mini App / ИИ-бот</td><td>2–4 недели</td><td class="r">80–250 тыс. ₽</td><td class="r">$1 500–4 000</td><td>Запись, каталог, оплата, интеграция с CRM</td></tr>
+      <tr><td>Сайт по подписке</td><td>старт за 14 дней</td><td class="r">19,9–34,9 тыс. ₽/мес</td><td class="r">$290–490/мес</td><td>Сайт, хостинг, правки, SEO-база, отчёт. Договор на 12 месяцев, первые 3 месяца — предоплатой</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Цены РФ соответствуют текущему калькулятору сайта, кроме MVP — его стоит поднять. Цены для зарубежья ниже местных агентств в 2–4 раза (бутиковые агентства США — от $6 тыс. за сайт малого бизнеса).</p>
+
+  <h3>Ключевые метрики и цели к 12-му месяцу</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Метрика</th><th class="r">Цель</th><th>Зачем следить</th></tr></thead>
+    <tbody>
+      <tr><td>Качественные заявки в месяц</td><td class="r">20–25 к 4-му мес., 40 к 12-му</td><td>Главный риск — пустая воронка</td></tr>
+      <tr><td>Конверсия заявка → оплата</td><td class="r">12–20%</td><td>Качество продаж и оффера</td></tr>
+      <tr><td>Средний чек проекта</td><td class="r">≥ 180 тыс. ₽</td><td>Ниже — модель не окупает постоянные расходы</td></tr>
+      <tr><td>Доля производства в цене проекта</td><td class="r">≤ 45%</td><td>Маржа проекта</td></tr>
+      <tr><td>Проекты, сданные в срок</td><td class="r">≥ 90%</td><td>На этом держится УТП</td></tr>
+      <tr><td>Доля подписок в выручке</td><td class="r">≥ 30%</td><td>Стабильность и меньше зависимость от продаж</td></tr>
+      <tr><td>Загрузка разработчиков</td><td class="r">60–85%</td><td>Ниже — команда уйдёт, выше — сорвём сроки</td></tr>
+      <tr><td>LTV / CAC</td><td class="r">≥ 3</td><td>Окупаемость маркетинга</td></tr>
+      <tr><td>Оценка клиента (NPS или 1–10)</td><td class="r">≥ 9 из 10</td><td>Рекомендации — самый дешёвый канал</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 6. FINANCE -->
+<section id="finance">
+  <span class="eyebrow">Раздел 7</span>
+  <h2>Финансовая система: как делится оплата</h2>
+  <p class="lead">Система «конвертов»: каждый платёж клиента сразу делится на фонды по фиксированным долям. Все доли и расчёты — на листах «Допущения» и «Распределение» в <a href="https://docs.google.com/spreadsheets/d/1YvDCYl-CjgTpZHl5JeOV9f4ztQZT8zqa-emu-x7jbl4/edit" target="_blank" rel="noopener">финансовой модели</a>, там же их можно поменять.</p>
+
+  <h3>Шесть принципов</h3>
+  <div class="grid3">
+    <div class="card"><h4>1. Конверты с каждого платежа</h4><p class="muted">Деньги пришли — сразу раскладываем по фондам. Налоги и резерв не трогаем никогда.</p></div>
+    <div class="card"><h4>2. Платим из полученного</h4><p class="muted">Команда получает деньги после того, как клиент оплатил принятый этап. Агентство не кредитует проекты.</p></div>
+    <div class="card"><h4>3. Оценка = оплата</h4><p class="muted">Разработчик получает фиксированную сумму за задачу по согласованной оценке, а не за фактические часы. Переделки по своей вине — бесплатно.</p></div>
+    <div class="card"><h4>4. Скидки — из прибыли</h4><p class="muted">Скидка уменьшает прибыль агентства и комиссию продавца, но не фонд разработчиков.</p></div>
+    <div class="card"><h4>5. Прибыль — остаток</h4><p class="muted">Собственники делят прибыль раз в квартал и только после покрытия накопленного убытка.</p></div>
+    <div class="card"><h4>6. Всё письменно</h4><p class="muted">«Положение о распределении доходов» подписывают все 7 человек до первого проекта.</p></div>
+  </div>
+
+  <h3>Калькулятор: кому сколько с одного проекта</h3>
+  <div class="calc">
+    <form id="calcForm" onsubmit="return false">
+      <label>Тип оплаты
+        <select id="cType"><option value="project">Проект разработки</option><option value="sub">Подписка (SEO, реклама, поддержка)</option></select>
+      </label>
+      <label>Сумма платежа клиента, ₽
+        <input id="cPrice" type="number" inputmode="numeric" min="0" step="5000" value="200000">
+      </label>
+      <label id="cSrcWrap">Откуда пришёл клиент
+        <select id="cSrc">
+          <option value="0.05">Входящая заявка (маркетинг агентства) — 5%</option>
+          <option value="0.10" selected>Свой клиент (сеть, холодный поиск) — 10%</option>
+          <option value="0.13">Через внешнего партнёра — 13% (10% партнёру + 3% менеджеру)</option>
+          <option value="0.03">Повторный заказ клиента — 3%</option>
+        </select>
+      </label>
+      <small class="muted">Доли совпадают с листом «Допущения» в финансовой модели. Средняя внутренняя ставка разработчика — 1 475 ₽/ч.</small>
+    </form>
+    <div>
+      <div id="splitOut"></div>
+      <div class="calc-sum" id="calcSum"></div>
+    </div>
+  </div>
+
+  <h3>Разработчики: как считаем и платим</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Вопрос</th><th>Правило</th></tr></thead>
+    <tbody>
+      <tr><td>Сколько получает разработчик за проект</td><td>Фонд производства = 45% цены проекта. Он делится между исполнителями по оценке задач: часы × внутренняя ставка (дизайнер 1 200, frontend 1 300, backend 1 400, senior 2 000, QA 900 ₽/ч — допущение, утвердите с командой)</td></tr>
+      <tr><td>Когда платим</td><td>За принятый клиентом этап, в течение 3 рабочих дней после его оплаты. Аванс клиента покрывает первый этап</td></tr>
+      <tr><td>Если работа заняла больше оценки</td><td>По вине исполнителя — переработка не оплачивается. Из-за клиента (новые хотелки) — менеджер оформляет доп. соглашение, клиент платит, исполнитель получает за новые часы</td></tr>
+      <tr><td>Если сделали быстрее</td><td>Сумма по оценке остаётся исполнителю. Это мотивирует использовать ИИ и готовые компоненты</td></tr>
+      <tr><td>Гарантия 60 дней</td><td>Свои баги исполнитель исправляет бесплатно. Расходы на чужие ошибки и форс-мажоры покрывает резерв 5%. Остаток резерва через 60 дней: 50% команде проекта, 50% в прибыль</td></tr>
+      <tr><td>Если разработчик привёл клиента</td><td>Получает комиссию за продажу (10%), как менеджер</td></tr>
+      <tr><td>Как распределяем проекты</td><td>Очередь по навыкам и загрузке, которую ведёт менеджер; каждый видит свою загрузку на месяц вперёд</td></tr>
+      <tr><td>Что с простоем на старте</td><td>Гарантированной оплаты нет, пока поток не стабилен. Честно говорим команде: первые 3–4 месяца доход 10–50 тыс. ₽, к 10–12 месяцу в базовом сценарии ≈ 130–140 тыс. ₽ в месяц. Когда выручка стабильно &gt; 1,2 млн ₽/мес — фиксированный ретейнер 1–2 ключевым разработчикам</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Менеджеры: оклад + комиссия + ведение + KPI</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Часть дохода</th><th class="r">Размер</th><th>Комментарий</th></tr></thead>
+    <tbody>
+      <tr><td>Оклад</td><td class="r">30 тыс. ₽</td><td>Или 0, если менеджеры — сооснователи. Тогда всё остальное то же, плюс дивиденды</td></tr>
+      <tr><td>Комиссия: входящая заявка</td><td class="r">5%</td><td>Клиента привёл маркетинг агентства</td></tr>
+      <tr><td>Комиссия: свой клиент</td><td class="r">10%</td><td>Сеть, холодный поиск, мероприятия</td></tr>
+      <tr><td>Комиссия: через партнёра</td><td class="r">3%</td><td>Партнёр получает 10%</td></tr>
+      <tr><td>Комиссия: повторный заказ</td><td class="r">3%</td><td>Аккаунт-менеджеру клиента</td></tr>
+      <tr><td>Ведение проекта</td><td class="r">7% проекта / 10% подписки</td><td>По этапам, вместе с разработчиками</td></tr>
+      <tr><td>Бонус за KPI</td><td class="r">до 20 тыс. ₽/мес</td><td>Сроки (±10%), доля производства ≤ 45%, оценка клиента ≥ 9</td></tr>
+    </tbody>
+  </table></div>
+  <p>Пример из финансовой модели (лист «Менеджеры»): менеджер, который за месяц продал на 600 тыс. ₽ и ведёт проекты на 600 тыс., получает ≈ 138 тыс. ₽. Правила: комиссия начисляется с поступивших денег, при возврате сторнируется; скидку до 5% менеджер даёт сам, больше — с собственником. После 3-го месяца разумно разделить роли: один менеджер больше продаёт и ведёт партнёров, второй — ведёт проекты и подписки.</p>
+
+  <h3>Собственники: прибыль раз в квартал</h3>
+  <div class="grid3">
+    <div class="card lime"><h4>50% — дивиденды</h4><p>Собственникам по долям. За риск, вложения и управление.</p></div>
+    <div class="card"><h4>30% — фонд развития</h4><p class="muted">Найм, обучение, свои продукты, подушка на 3 месяца постоянных расходов.</p></div>
+    <div class="card"><h4>20% — бонус команды</h4><p class="muted">Делим между разработчиками и менеджерами по KPI и вкладу за квартал.</p></div>
+  </div>
+
+  <h3>Три модели партнёрства в команде</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Модель</th><th>Как устроено</th><th>Плюсы</th><th>Минусы</th><th>Когда</th></tr></thead>
+    <tbody>
+      <tr><td><b>A. Агентство + подрядчики</b> (рекомендую на старте)</td><td>Агентство (ИП/ООО) заключает договор с клиентом и договоры подряда с разработчиками; платит по конвертам</td><td>Нет постоянных расходов на команду, просто, справедливо</td><td>Сильным разработчикам не хватает «своего»; риск ухода при простое</td><td>0–12 месяцев</td></tr>
+      <tr><td><b>B. Партнёрство с долей в прибыли</b></td><td>Как A, плюс 2–3 ключевых разработчика получают долю бонусного фонда или опцион на долю в ООО с вестингом 2–3 года</td><td>Удерживает ключевых людей, общая цель</td><td>Нужно ООО, корпоративный договор, сложнее выход</td><td>Когда видно, кто остаётся (6–12 мес.)</td></tr>
+      <tr><td><b>C. Штат на окладах</b></td><td>Разработчики в штате с окладом и премией</td><td>Контроль, стабильность, нет риска переквалификации</td><td>Высокие постоянные расходы, взносы. Окупается при загрузке &gt; 70% стабильно</td><td>После 12 месяцев и выручки &gt; 2 млн ₽/мес; рассмотреть ИТ-аккредитацию</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Подписки и рекламные бюджеты клиентов</h3>
+  <ul>
+    <li>С подписки: 7% налоги, 50% исполнителю, 10% аккаунт-менеджеру, 4–5% продавцу (первые 6 месяцев), 5% сервисы, 3% маркетинг, ≈ 21% прибыль.</li>
+    <li><b>Рекламный бюджет клиента — не наша выручка.</b> Клиент пополняет свой кабинет Яндекс Директа сам. Если деньги проходят через агентство на УСН «доходы», налог платится со всего оборота. Если без этого никак — агентский договор: тогда доходом считается только вознаграждение.</li>
+    <li>Ведение рекламы: фикс 30–60 тыс. ₽/мес или 10–15% от бюджета, но не меньше фикса.</li>
+  </ul>
+
+  <h3>Юридическая и налоговая схема</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Вопрос</th><th>Рекомендация</th></tr></thead>
+    <tbody>
+      <tr><td>Форма агентства</td><td>Один собственник — ИП на УСН. Двое и больше — ООО с долями и корпоративным договором: так прибыль делится законно, а не «на доверии»</td></tr>
+      <tr><td>УСН 6% или 15%</td><td>Модель считает УСН «доходы» 6%. При нашей структуре подтверждённые расходы ≈ 70–75% выручки, поэтому УСН «доходы минус расходы» 15% может дать ≈ 4–4,5% от выручки вместо 6%. Сравнить с бухгалтером и проверить региональные ставки</td></tr>
+      <tr><td>НДС</td><td>До 20 млн ₽ выручки за год — без НДС. Выше — со следующего года 5% без вычетов. В базовом сценарии первый год ниже порога, в оптимистичном — близко (19,2 млн)</td></tr>
+      <tr><td>Разработчики</td><td>Самозанятые (НПД, 6% с выплат от юрлиц и ИП) с лимитом 2,4 млн ₽ в год, либо ИП. Договор подряда на проект или этап + ТЗ + акт + чек</td></tr>
+      <tr><td>Риск переквалификации</td><td>Не ставить график, не называть «сотрудниками», платить за результат, не запрещать работать на других, не выдавать «должностные обязанности»</td></tr>
+      <tr><td>Права на код и дизайн</td><td>В договоре с исполнителем — отчуждение исключительного права агентству; в договоре с клиентом — передача прав после полной оплаты. Репозитории на аккаунте агентства, доступы клиенту при сдаче</td></tr>
+      <tr><td>Защита клиентской базы</td><td>NDA и условие о неуводе клиентов (12 месяцев, со штрафом) в договоре подряда</td></tr>
+      <tr><td>Зарубежные клиенты</td><td>Через партнёра-юрлицо или ИП в Казахстане, Армении, Грузии или ОАЭ, либо платёжного агента. Выбирать с юристом по ВЭД: правила меняются быстро</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Спорные ситуации: решаем заранее</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Ситуация</th><th>Как поступаем</th></tr></thead>
+    <tbody>
+      <tr><td>Клиент не платит последний этап</td><td>Доступы и права передаём только после оплаты. Исполнители получают свою часть после оплаты; резерв может покрыть до 50% их долга, если клиент молчит больше 30 дней</td></tr>
+      <tr><td>Клиент пропал на 10+ дней</td><td>Проект замораживается, срок сдвигается, в договоре — плата за разморозку</td></tr>
+      <tr><td>Проект ушёл в минус</td><td>Сначала тратим резерв, затем прибыль агентства. Фонд разработчиков не трогаем, если вины исполнителей нет. Разбор после проекта: где ошиблись в оценке</td></tr>
+      <tr><td>Сорвали срок по нашей вине</td><td>Компенсация клиенту из прибыли агентства и комиссии менеджера; виновный исполнитель доделывает бесплатно</td></tr>
+      <tr><td>Менеджер уходит</td><td>Клиенты остаются в агентстве. Комиссия по его сделкам выплачивается за деньги, пришедшие в течение 30 дней после ухода</td></tr>
+      <tr><td>Возврат денег клиенту</td><td>Возвращаем из резерва и прибыли; комиссии продавца сторнируются</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 7. FORECAST -->
+<section id="forecast">
+  <span class="eyebrow">Раздел 8</span>
+  <h2>Прогноз на 12 месяцев</h2>
+  <p class="lead">Три сценария из <a href="https://docs.google.com/spreadsheets/d/1YvDCYl-CjgTpZHl5JeOV9f4ztQZT8zqa-emu-x7jbl4/edit" target="_blank" rel="noopener">финансовой модели</a>. Выручка учитывается по факту оплаты: аванс 50% в месяц подписания, остаток — в следующем. Постоянные расходы ≈ 186 тыс. ₽/мес (оклады двух менеджеров по 30 тыс., маркетинг от 80 тыс., софт, бухгалтерия, юрист, взносы ИП).</p>
+
+  <div class="chart" id="chartRev"></div>
+  <div class="chart" id="chartProfit"></div>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Показатель за 12 месяцев</th><th class="r">Пессимист</th><th class="r">База</th><th class="r">Оптимист</th></tr></thead>
+    <tbody>
+      <tr><td>Новых проектов за год</td><td class="r">23</td><td class="r">46</td><td class="r">68</td></tr>
+      <tr><td>Средний чек проекта</td><td class="r">140 тыс. ₽</td><td class="r">180 тыс. ₽</td><td class="r">220 тыс. ₽</td></tr>
+      <tr><td>Выручка за год</td><td class="r">3,5 млн ₽</td><td class="r">10,0 млн ₽</td><td class="r">19,2 млн ₽</td></tr>
+      <tr><td>Выручка в 12-м месяце</td><td class="r">0,52 млн ₽</td><td class="r">1,53 млн ₽</td><td class="r">2,98 млн ₽</td></tr>
+      <tr><td>Активных подписок к концу года</td><td class="r">4</td><td class="r">13</td><td class="r">22</td></tr>
+      <tr><td>Выплачено разработчикам</td><td class="r">1,6 млн ₽</td><td class="r">4,6 млн ₽</td><td class="r">8,9 млн ₽</td></tr>
+      <tr><td>Выплачено менеджерам</td><td class="r">1,2 млн ₽</td><td class="r">2,1 млн ₽</td><td class="r">3,3 млн ₽</td></tr>
+      <tr class="total"><td>Прибыль агентства за год</td><td class="r">−1,02 млн ₽</td><td class="r">+0,47 млн ₽</td><td class="r">+2,40 млн ₽</td></tr>
+      <tr><td>Первый прибыльный месяц</td><td class="r">не вышли</td><td class="r">6-й</td><td class="r">4-й</td></tr>
+      <tr><td>Нужно денег на старт (с учётом 300 тыс.)</td><td class="r">≈ 1,02 млн ₽</td><td class="r">≈ 450 тыс. ₽</td><td class="r">≈ 370 тыс. ₽</td></tr>
+      <tr><td>Доход разработчика в месяц (М10–М12)</td><td class="r">≈ 47 тыс. ₽</td><td class="r">≈ 134 тыс. ₽</td><td class="r">≈ 257 тыс. ₽</td></tr>
+      <tr><td>Доход менеджера в месяц (М10–М12)</td><td class="r">≈ 64 тыс. ₽</td><td class="r">≈ 127 тыс. ₽</td><td class="r">≈ 214 тыс. ₽</td></tr>
+      <tr><td>Пиковая загрузка разработчиков</td><td class="r">27%</td><td class="r">81%</td><td class="r">157%</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid3">
+    <div class="card"><h4>Пессимист</h4><p class="muted">2–3 проекта в месяц не окупают оклады и маркетинг. Если к 4-му месяцу поток такой — обнулить оклады менеджеров (перейти на чистый процент), урезать маркетинг до 30–40 тыс. и брать white-label. Разработчики с доходом ≈ 47 тыс. ₽/мес начнут уходить.</p></div>
+    <div class="card lime"><h4>База</h4><p>Ожидаемый путь. Плюс с 6-го месяца, к концу года ≈ 225 тыс. ₽ прибыли в месяц (рентабельность 15%). Годовая прибыль небольшая (4,8%) из-за убытков первых 5 месяцев — это нормально для запуска.</p></div>
+    <div class="card"><h4>Оптимист</h4><p class="muted">С 8-го месяца загрузка выше 100%: нужен найм или субподряд, иначе сорвём сроки и УТП. Доход разработчика выше лимита самозанятого — переводить на ИП. Выручка близко к порогу НДС.</p></div>
+  </div>
+  <p class="muted">Все сценарии — допущения без истории продаж. Сверяйте план с фактом каждый месяц на листах P&L и меняйте цифры в «Допущениях».</p>
+</section>
+
+<!-- 8. CHANNELS -->
+<section id="channels">
+  <span class="eyebrow">Раздел 9</span>
+  <h2>Каналы продвижения на старте</h2>
+  <p class="lead">Чтобы выйти на базовый сценарий, к 4-му месяцу нужно 3–4 оплаты в месяц, то есть 20–25 качественных заявок при конверсии 15%. Начинаем с бесплатных каналов, где доверие уже есть, и параллельно строим те, что дадут поток через 2–3 месяца.</p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Канал</th><th>Затраты</th><th>Первый лид</th><th class="r">Заявок/мес</th><th>Что делать</th><th>Приоритет</th></tr></thead>
+    <tbody>
+      <tr><td><b>Тёплая сеть команды</b></td><td>0 ₽</td><td>1–2 недели</td><td class="r">5–10</td><td>Список из 100 контактов у 7 человек: бывшие клиенты и коллеги, знакомые предприниматели. Личное сообщение с оффером «первым 5 клиентам». Не переманивать клиентов бывших работодателей, если есть ограничения</td><td><span class="tag p2">Сразу</span></td></tr>
+      <tr><td><b>Клиенты и пилоты Brandyx</b></td><td>0 ₽</td><td>1–2 недели</td><td class="r">2–5</td><td>3 платящих клиента и 30+ проектов в пилоте: предложить сайт, редизайн или лендинг под запуск со скидкой для своих</td><td><span class="tag p2">Сразу</span></td></tr>
+      <tr><td><b>White-label для агентств</b></td><td>0 ₽</td><td>2–3 недели</td><td class="r">2–4</td><td>Написать 30 агентствам (Москва, СПб, Екатеринбург) с оффером «делаем под вашим брендом, срок в договоре». Даёт загрузку разработчикам, пока свой поток маленький</td><td><span class="tag p2">Сразу</span></td></tr>
+      <tr><td><b>Партнёрская программа</b></td><td>10% с оплаты</td><td>3–4 недели</td><td class="r">3–6</td><td>Маркетологи, SMM, дизайнеры, бухгалтеры, бизнес-консультанты, SEO-фрилансеры. 10 партнёров за первый месяц, памятка и ссылка с меткой</td><td><span class="tag p2">Сразу</span></td></tr>
+      <tr><td><b>Площадки и каталоги</b></td><td>5–15 тыс. ₽/мес</td><td>1–3 недели</td><td class="r">5–10</td><td>Авито Услуги (обложки уже готовы в папке +v), Яндекс Услуги, Профи.ру, 2ГИС, тендеры Workspace, профили в Ruward и «Рейтинге Рунета». Kwork и FL — как вход для мелких задач с допродажей. Бесплатно попасть в каталог Tilda Experts (без комиссии)</td><td><span class="tag p2">Сразу</span></td></tr>
+      <tr><td><b>Видео-аудиты</b></td><td>0 ₽ + время</td><td>2–3 недели</td><td class="r">3–6</td><td>Выбрать нишу (клиники Челябинска и Екатеринбурга), найти 20 компаний в неделю со слабым сайтом, записать 3-минутный разбор и отправить лично. Только персональные сообщения: массовая рассылка рекламы без согласия запрещена законом «О рекламе»</td><td><span class="tag p1">Месяц 1–2</span></td></tr>
+      <tr><td><b>Контент и личный бренд</b></td><td>0–10 тыс. ₽</td><td>1–2 месяца</td><td class="r">2–5</td><td>Telegram-канал агентства, VC.ru, TenChat, Habr (про ИИ-разработку), короткие видео «разбор сайта за 60 секунд». 2–3 публикации в неделю</td><td><span class="tag p1">Месяц 1–2</span></td></tr>
+      <tr><td><b>Яндекс Директ</b></td><td>40–60 тыс. ₽ тест</td><td>1 неделя</td><td class="r">5–15</td><td>Узкие запросы по нише и региону, ретаргетинг, лид-магнит «аудит за 0 ₽». Ниша «разработка сайтов» дорогая — сначала тест на 2–3 недели и замер цены заявки</td><td><span class="tag p1">Месяц 2</span></td></tr>
+      <tr><td><b>Бизнес-сообщества и выступления</b></td><td>0–10 тыс. ₽</td><td>1 месяц</td><td class="r">1–3</td><td>«Опора России», «Деловая Россия», ТПП Челябинской области, сеть Сколково. Тема: «Как малому бизнесу использовать ИИ в маркетинге»</td><td><span class="tag p1">Месяц 1–3</span></td></tr>
+      <tr><td><b>SEO своего сайта</b></td><td>время</td><td>4–6 месяцев</td><td class="r">5–15 позже</td><td>Региональные запросы («разработка сайтов Челябинск», «создание приложения Челябинск»), страницы под ниши, блог, Яндекс Бизнес</td><td><span class="tag p1">Фоном</span></td></tr>
+      <tr><td><b>Зарубежье: русскоязычные сообщества</b></td><td>0–15 тыс. ₽</td><td>3–6 недель</td><td class="r">2–5</td><td>Telegram-чаты предпринимателей Алматы, Ташкента, Еревана, Тбилиси, Белграда, Лимассола, Дубая; партнёрство с релокационными и бухгалтерскими компаниями; LinkedIn основателей; страница /en</td><td><span class="tag p1">Месяц 2–3</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Бюджет на маркетинг в первые 3 месяца</h4>
+      <div class="tbl" style="margin:8px 0 0"><table style="min-width:0">
+        <tbody>
+          <tr><td>Площадки и каталоги</td><td class="r">15 тыс. ₽/мес</td></tr>
+          <tr><td>Директ (со 2-го месяца)</td><td class="r">40–50 тыс. ₽/мес</td></tr>
+          <tr><td>Посевы в Telegram-каналах</td><td class="r">10–15 тыс. ₽/мес</td></tr>
+          <tr><td>Мероприятия, видео, мелочи</td><td class="r">5–10 тыс. ₽/мес</td></tr>
+          <tr class="total"><td>Итого</td><td class="r">≈ 70–90 тыс. ₽/мес</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h4>Воронка, которую нужно построить к 4-му месяцу</h4>
+      <div id="funnel"></div>
+      <p class="muted" style="font-size:13px;margin-bottom:0">Если конверсия ниже 10% — проблема в оффере или продажах, а не в количестве заявок.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9. ODDS -->
+<section id="odds">
+  <span class="eyebrow">Раздел 10</span>
+  <h2>Насколько можно продвинуться и каковы шансы</h2>
+  <p class="lead">Честная экспертная оценка, а не статистика: у агентства пока нет истории продаж. Ниже — из чего она складывается и что её меняет.</p>
+
+  <h3>Факторы успеха: где мы сейчас</h3>
+  <div id="oddsScores"></div>
+  <p class="muted" style="font-size:13px">1 — слабо, 5 — сильно. Средняя оценка ≈ 2,8 из 5: хорошая команда и низкие постоянные расходы, но нет продаж, кейсов и отличия.</p>
+
+  <h3>Вероятность по этапам</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Цель</th><th class="r">Вероятность</th><th>От чего зависит</th></tr></thead>
+    <tbody>
+      <tr><td>Первые 3 оплаченных проекта за 60 дней</td><td class="r"><b>70–80%</b></td><td>Тёплая сеть 7 человек, опыт руководителя (72 проекта за год), клиенты Brandyx</td></tr>
+      <tr><td>Безубыточность (≈ 665 тыс. ₽/мес) к 6-му месяцу</td><td class="r"><b>≈ 50%</b></td><td>Удастся ли построить 2–3 стабильных канала, кроме тёплой сети</td></tr>
+      <tr><td>Устойчивый плюс 3 месяца подряд в первые 9 месяцев</td><td class="r"><b>55–60%</b></td><td>Продажи + подписки + сдача в срок</td></tr>
+      <tr><td>Выручка ≥ 1,5 млн ₽/мес к 12-му месяцу (базовый сценарий)</td><td class="r"><b>30–35%</b></td><td>Средний чек ≥ 180 тыс., 5–6 проектов в месяц, 10+ подписок</td></tr>
+      <tr><td>Выручка ≈ 3 млн ₽/мес к 12-му месяцу (оптимист)</td><td class="r"><b>10–15%</b></td><td>Крупные клиенты, найм, сильный канал (партнёры или экспорт)</td></tr>
+      <tr><td>Зарубежные клиенты ≥ 20% выручки в первый год</td><td class="r"><b>15–20%</b></td><td>Платёжная схема, английская версия, 3–5 кейсов для зарубежья</td></tr>
+      <tr><td>Прибыльное агентство на 5+ млн ₽/мес за 2–3 года</td><td class="r"><b>≈ 10%</b></td><td>Ниша и узнаваемость, второй уровень менеджмента, подписки ≥ 30%</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid2">
+    <div class="card lime">
+      <h4>Что сильнее всего повышает шансы</h4>
+      <ol>
+        <li>Починить форму и запустить сайт на домене за 1–2 недели.</li>
+        <li>Сделать 3 пилотных проекта по кейс-цене и упаковать их с цифрами.</li>
+        <li>Назначить одного человека, который отвечает за продажи и воронку каждый день.</li>
+        <li>Взять white-label, чтобы команда не простаивала.</li>
+        <li>Продавать подписку каждому запущенному клиенту.</li>
+        <li>Выбрать 1–2 ниши к 3-му месяцу.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h4>Контрольные точки и стоп-сигналы</h4>
+      <ul>
+        <li><b>День 30:</b> меньше 10 заявок и ни одной оплаты → пересмотреть оффер, усилить тёплую сеть и white-label.</li>
+        <li><b>День 90:</b> меньше 3 оплаченных проектов в месяц и меньше 15 заявок → обнулить оклады, сфокусироваться на одной нише или стать white-label-подрядчиком.</li>
+        <li><b>Месяц 6:</b> нет выхода в плюс и подписок меньше 5 → сократить постоянные расходы, пересобрать модель.</li>
+        <li><b>Месяц 6:</b> загрузка выше 90% → нанимать и поднимать цены.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout"><b>Итог:</b> идея жизнеспособна, а модель с переменной оплатой команды делает старт дешёвым — риск потерять большие деньги низкий. Реальная цель первого года — 1–1,5 млн ₽ выручки в месяц и 150–250 тыс. ₽ прибыли агентства к 12-му месяцу. Чтобы её достичь, продажами нужно заниматься с первого дня каждый день: молодые агентства чаще закрываются из-за пустой воронки, а не из-за плохого кода.</div>
+</section>
+
+<!-- 10. PLAN -->
+<section id="plan">
+  <span class="eyebrow">Раздел 11</span>
+  <h2>План на 90 дней</h2>
+  <div class="tl">
+    <div class="wk"><b>Недели 1–2<br><small class="muted">Фундамент</small></b><ul>
+      <li>Сайт: починить форму (Telegram-бот + почта + CRM), домен, HTTPS, снять noindex, Метрика с целями, реквизиты, убрать «лучшие», заменить акцию.</li>
+      <li>Юридически: ИП или ООО, расчётный счёт, договор с клиентом, договор подряда с исполнителями (права, NDA, неувод клиентов).</li>
+      <li>«Положение о распределении доходов» — подписать всем 7.</li>
+      <li>Выбрать УТП и пакеты, обновить цены (MVP от 500 тыс.).</li>
+      <li>CRM (amoCRM, Битрикс24 или простая таблица) и еженедельная планёрка по воронке.</li>
+      <li>Список из 100 тёплых контактов, первые 30 сообщений.</li>
+    </ul></div>
+    <div class="wk"><b>Недели 3–4<br><small class="muted">Первые сделки</small></b><ul>
+      <li>2–3 пилотных проекта по кейс-цене (−20–30%) в обмен на отзыв и разрешение показать цифры.</li>
+      <li>Профили на Авито Услугах, Яндекс Услугах, Профи, 2ГИС, Workspace.</li>
+      <li>Партнёрская программа: 10 партнёров. White-label: 30 писем агентствам.</li>
+      <li>Блоки «Команда» и «Гарантии» на сайте, реальные проекты из портфолио.</li>
+    </ul></div>
+    <div class="wk"><b>Месяц 2<br><small class="muted">Поток заявок</small></b><ul>
+      <li>Видео-аудиты: 20 в неделю в выбранной нише.</li>
+      <li>Telegram-канал, VC.ru и TenChat: 2–3 поста в неделю, первый кейс.</li>
+      <li>Тест Директа на 40–50 тыс. ₽, замер цены заявки.</li>
+      <li>Страница /en и «Для бизнеса за рубежом», цены в $, выбор платёжной схемы с юристом.</li>
+      <li>Пакет «сайт + 3 месяца Brandyx».</li>
+    </ul></div>
+    <div class="wk"><b>Месяц 3<br><small class="muted">Удержание и решения</small></b><ul>
+      <li>Предложить подписку каждому запущенному клиенту.</li>
+      <li>2–3 зарубежных пилота через русскоязычные сообщества.</li>
+      <li>Выбрать 1–2 ниши по фактам: где выше чек и конверсия.</li>
+      <li>Сверить факт с финансовой моделью, пройти контрольную точку дня 90 и решить: масштабировать, сфокусироваться или переключиться на white-label.</li>
+      <li>Связаться с Центром поддержки экспорта Челябинской области: узнать условия софинансирования сайтов на иностранных языках для экспортёров.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 11. RISKS -->
+<section id="risks">
+  <span class="eyebrow">Раздел 12</span>
+  <h2>Риски и как их снизить</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Риск</th><th>Вероятность</th><th>Что делаем</th></tr></thead>
+    <tbody>
+      <tr><td>Мало заявок, пустая воронка</td><td>Высокая</td><td>Ежедневная работа с продажами, 5+ каналов одновременно, white-label для загрузки</td></tr>
+      <tr><td>Нет кейсов — нет доверия</td><td>Высокая</td><td>Реальные проекты команды (с разрешения), пилоты по кейс-цене, гарантии в договоре</td></tr>
+      <tr><td>Кассовый разрыв</td><td>Средняя</td><td>Аванс 50%, оплата команде только из полученного, подушка 300–450 тыс. ₽</td></tr>
+      <tr><td>Разработчики уходят из-за низкого дохода на старте</td><td>Средняя</td><td>Честно обсудить ожидания, white-label, бонусный фонд, модель B для ключевых людей</td></tr>
+      <tr><td>Срыв сроков подрывает УТП</td><td>Средняя</td><td>Буфер 15% в оценке, еженедельные демо, заморозка при молчании клиента, ограничение одновременных проектов</td></tr>
+      <tr><td>Конфликты из-за денег внутри команды</td><td>Средняя</td><td>Письменное положение, прозрачная таблица выплат, спорные случаи прописаны заранее</td></tr>
+      <tr><td>Исполнитель уходит с клиентом</td><td>Низкая–средняя</td><td>Неувод клиентов в договоре, репозитории и доступы на агентстве, отношения с клиентом держит менеджер</td></tr>
+      <tr><td>Переквалификация самозанятых</td><td>Низкая–средняя</td><td>Договоры подряда за результат, без графика и подчинения, ИП для тех, кто выше лимита</td></tr>
+      <tr><td>Платежи из-за рубежа</td><td>Высокая</td><td>Партнёр-юрлицо или платёжный агент, начинать со стран СНГ</td></tr>
+      <tr><td>ИИ удешевляет простые сайты</td><td>Высокая</td><td>Не продавать «просто лендинг», продавать результат, интеграции, подписку и скорость</td></tr>
+      <tr><td>Претензии к рекламе и ПДн</td><td>Низкая</td><td>Убрать «лучшие», проверяемые обещания, реквизиты и оператор ПДн, маркировка рекламы</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- SOURCES -->
+<section id="sources">
+  <span class="eyebrow">Источники</span>
+  <h2>Откуда цифры</h2>
+  <ul class="src">
+    <li>Выручка digital-агентств 2025, разработка 30 млрд, 47%/24%/55% — Workspace через Sostav: <a href="https://www.sostav.ru/publication/pochti-polovina-didzhital-agentstv-narastili-vyruchku-v-2025-godu-80632.html">sostav.ru</a></li>
+    <li>Рынок цифровых услуг 115 млрд ₽ (Рейтинг Рунета): <a href="https://www.sostav.ru/publication/tempy-rosta-rynka-tsifrovykh-uslug-zamedlyatsya-78343.html">sostav.ru</a></li>
+    <li>Сокращение числа digital-подрядчиков: <a href="https://www.comnews.ru/digital-economy/content/237046/2025-01-09/2025-w02/1012/reyting-runeta-kolichestvo-digital-podryadchikov-rossii-umenshitsya-blizhayshie-dva-goda">comnews.ru</a></li>
+    <li>Рекламный рынок 2025 (АКАР): <a href="https://ppc.world/news/tempy-rosta-rossiyskogo-reklamnogo-rynka-rezko-snizilis-v-2025-godu-issledovanie-akar/">ppc.world</a>, <a href="https://www.sostav.ru/publication/akar-podvel-obem-rynka-marketingovykh-kommunikatsij-v-2025-godu-82560.html">sostav.ru</a></li>
+    <li>Интернет-реклама (АРИР, ЕРИР): <a href="https://ppc.world/news/obem-rossiyskogo-rynka-internet-reklamy-vyros-na-28-v-2025-godu/">ppc.world</a>, <a href="https://www.comnews.ru/content/246404/2026-07-15/2026-w29/1008/internet-reklamodateli-snizili-byudzhety">comnews.ru</a></li>
+    <li>МСП 7,01 млн: <a href="https://riamo.ru/news/ekonomika/v-rossii-stalo-bolshe-7-mln-kompanij-i-ip-chto-stoit-za-rekordom-msp/">riamo.ru</a></li>
+    <li>Налоговая реформа 2026, НДС на УСН: <a href="https://kontur.ru/lp/nds2026">kontur.ru</a>, <a href="https://sberbusiness.live/spetsproekty/nalogovaya-reforma-2026-goda-gaid-dlya-predprinimatelya">sberbusiness.live</a></li>
+    <li>Самозанятые, лимит и переквалификация: <a href="https://kontur.ru/articles/50781-rabotat_s_samozanyatymi_i_ne_narushit_zakon">kontur.ru</a>, <a href="https://harant.ru/blog/nalogi/samozanyatye-limit-v-24-mln-i-riski-perekvalifikaczii-v-trudovye-otnosheniya/">harant.ru</a></li>
+    <li>Ставки агентств: <a href="https://clutch.co/web-developers/pricing">clutch.co</a>, <a href="https://www.digitalapplied.com/blog/website-development-cost-2026-complete-pricing-data">digitalapplied.com</a>, <a href="https://www.webfx.com/blog/web-design/how-much-does-a-website-cost/">webfx.com</a></li>
+    <li>ИИ в веб-разработке: <a href="https://vc.ru/id5423770/2939924-ii-v-veb-razrabotke">vc.ru</a>, <a href="https://workspace.ru/blog/sayt-za-vecher-ili-sayt-na-gody-chem-otlichaetsya-razrabotka-na-ii-ot-raboty-professionalov/">workspace.ru</a></li>
+    <li>IT-рынок Казахстана: <a href="https://forbes.kz/articles/kakim-stranam-okazyvayut-uslugi-kazahstanskie-it-kompanii-3d66c7">forbes.kz</a>; digital в Узбекистане: <a href="https://www.sostav.ru/blogs/141843/68775">sostav.ru</a></li>
+    <li>Платежи из-за рубежа: <a href="https://companies.rbc.ru/news/J3xRGF9OOv/zarubezhnaya-infrastruktura-dlya-it-biznesa-vazhnyi-inostrannoe-yurlitso-i-schet/">companies.rbc.ru</a>, <a href="https://www.sostav.ru/blogs/284399/68028">sostav.ru</a></li>
+    <li>Конкуренты (сайты и профили, 17.11.2026): <a href="https://1ps.ru">1ps.ru</a>, <a href="https://ac-u.ru">ac-u.ru</a>, <a href="https://workspace.ru/contractors/twinscom/">WebCanape (WS)</a>, <a href="https://cosmos-web.ru">cosmos-web.ru</a>, <a href="https://kiberia.ru">kiberia.ru</a>, <a href="https://vverh.digital">vverh.digital</a>, <a href="https://megagroup.ru">megagroup.ru</a>, <a href="https://dextra.ru">dextra.ru</a>, <a href="https://kokoc.com">kokoc.com</a>, <a href="https://semantica.in">semantica.in</a>, <a href="https://seo.ru">seo.ru</a>, <a href="https://pixelplus.ru">pixelplus.ru</a>, <a href="https://demis.ru">demis.ru</a>, <a href="https://ingate.ru">ingate.ru</a>, <a href="https://avat.studio">avat.studio</a>, <a href="https://yappix.ru">yappix.ru</a>, <a href="https://nurokod.dev">nurokod.dev</a>, <a href="https://aibuilderslab.ru">aibuilderslab.ru</a>, <a href="https://svyazi-agency.ru">svyazi-agency.ru</a>, <a href="https://resolventagroup.ru">resolventagroup.ru</a>, <a href="https://vakas.ru">vakas.ru</a>, <a href="https://riversoft.tech">riversoft.tech</a>, <a href="https://march-code.ru">march-code.ru</a>, <a href="https://workspace.ru/contractors/fittin/">FITTIN (WS)</a>, <a href="https://xstudio.pro">xstudio.pro</a>, <a href="https://appfox.ru">appfox.ru</a>, <a href="https://appcraft.pro">appcraft.pro</a>, <a href="https://purrweb.com">purrweb.com</a>, <a href="https://business.yandex.ru">Яндекс Бизнес</a>, <a href="https://tilda.cc/ru/pricing/">Tilda</a>, <a href="https://craftum.com">craftum.com</a>, <a href="https://nethouse.ru">nethouse.ru</a>, <a href="https://kwork.ru">kwork.ru</a>, <a href="https://profi.ru">profi.ru</a>, <a href="https://promopult.ru">promopult.ru</a>, <a href="https://elama.ru">elama.ru</a>, <a href="https://beontop.ae">beontop.ae</a>, <a href="https://webmedia.global">webmedia.global</a>, <a href="https://ronasit.com">ronasit.com</a>, <a href="https://artbull.kz">artbull.kz</a>; средние цены — <a href="https://ratingruneta.ru/web/corporate_site_type_segment/">Рейтинг Рунета</a>; рейтинги <a href="https://workspace.ru/rating/web-developers/">Workspace</a>, каталог <a href="https://ruward.ru">Ruward</a></li>
+    <li>Аудит сайта: Lighthouse (мобильный режим) и проверка кода сайта, 17.11.2026.</li>
+  </ul>
+  <p class="muted">Налоговые и юридические пункты — ориентир, а не консультация. Перед регистрацией и подписанием договоров сверьте их с бухгалтером и юристом.</p>
+</section>
+
+<footer>+vibe · стратегия запуска · 17.11.2026</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  var fmt = function(n){ return Math.round(n).toLocaleString('ru-RU').replace(/,/g,' '); };
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* theme */
+  var root = document.documentElement;
+  try { var saved = localStorage.getItem('vibe-theme'); if (saved) root.setAttribute('data-theme', saved); } catch(e){}
+  $('themeBtn').addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    var dark = cur ? cur === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('vibe-theme', next); } catch(e){}
+    drawCharts();
+  });
+
+  /* toc chips + active */
+  var toc = $('toc'), chips = $('chips');
+  toc.querySelectorAll('a').forEach(function(a){ var c = a.cloneNode(true); chips.appendChild(c); });
+  var links = toc.querySelectorAll('a');
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting){ links.forEach(function(l){ l.classList.toggle('on', l.getAttribute('href') === '#' + e.target.id); }); } });
+  }, {rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('main section[id]').forEach(function(s){ io.observe(s); });
+
+  /* score bars */
+  function scores(el, items, max){
+    el.innerHTML = items.map(function(it){
+      return '<div class="score"><span>' + it[0] + '</span><div class="track" role="img" aria-label="' + it[0] + ': ' + it[1] + ' из ' + max + '"><div class="fill" style="width:' + (it[1]/max*100) + '%"></div></div><b>' + String(it[1]).replace('.', ',') + '</b></div>';
+    }).join('');
+  }
+  scores($('siteScores'), [
+    ['Дизайн и визуал', 9], ['Мобильная версия', 8], ['Скорость и техника', 7], ['Ясность оффера', 6],
+    ['Конверсия (формы, кнопки)', 4], ['SEO-готовность', 4], ['Отличие от конкурентов', 3],
+    ['Доверие (кейсы, команда, реквизиты)', 2], ['Готовность к зарубежным рынкам', 1]
+  ], 10);
+  scores($('oddsScores'), [
+    ['Команда и компетенции', 4.5], ['Финансовая устойчивость (низкие фикс. расходы)', 4], ['Сайт и упаковка', 3.5],
+    ['Тёплая сеть и связи (Brandyx, Сколково)', 3.5], ['Спрос на рынке в 2026', 2.5], ['Отличие от конкурентов', 2],
+    ['Система продаж', 2], ['Кейсы и доверие', 1.5], ['Готовность к зарубежью', 1.5]
+  ], 5);
+
+  /* USP cards */
+  var usp = [
+    {t:'AI-скорость с гарантией срока', d:'Лендинг за 7–10 дней, сайт за 21 день, MVP за 6 недель. Срок в договоре, за просрочку по нашей вине — компенсация. Название +vibe прямо связано с вайб-кодингом.', s:[3,4,4,4,3], pick:'Ядро'},
+    {t:'Собственная AI-платформа Brandyx', d:'После запуска клиент получает бренд-профиль, тон голоса и контент-план на Brandyx. «Сайт + бренд + контент на автопилоте» — такого нет у региональных студий.', s:[5,3,4,3,4], pick:'Усилитель'},
+    {t:'Русскоязычная команда для бизнеса за рубежом', d:'Качество уровня Европы по цене СНГ, на русском, в вашем часовом поясе. Мультиязычные сайты, Google Ads, локальное SEO.', s:[4,2,5,3,2], pick:'Второй рынок'},
+    {t:'Сайт по подписке', d:'Без большой предоплаты: 19,9–34,9 тыс. ₽ в месяц на 12 месяцев, внутри сайт, хостинг, правки, SEO-база и отчёт.', s:[3,4,5,4,3], pick:'Модель оплаты'},
+    {t:'Нишевая специализация', d:'1–2 ниши (медицина, юристы, B2B-производство, онлайн-школы): готовые решения, знание метрик ниши, кейсы. Выбрать по фактам к 3-му месяцу.', s:[3,2,4,4,4]},
+    {t:'Экспорт-диджитал для производств Урала', d:'Сайты на английском, китайском, казахском, продвижение на рынки СНГ, Азии и Ближнего Востока, помощь с господдержкой экспорта.', s:[5,2,4,2,3]},
+    {t:'Оплата частично за результат', d:'Ниже фикс + бонус за заявки или гарантия: если цена заявки выше согласованной, месяц ведения бесплатно.', s:[4,2,3,5,2]},
+    {t:'Полная прозрачность', d:'Фиксированная цена, еженедельные демо, доступ к трекеру и коду, права клиенту. Слабо как УТП в одиночку, сильно как опора.', s:[2,5,3,3,5]}
+  ];
+  var labels = ['Уникальность','Доказуемость сейчас','Деньги','Скорость продаж','Низкий риск'];
+  $('uspGrid').innerHTML = usp.map(function(u, i){
+    var dots = u.s.map(function(v, k){
+      var d = ''; for (var j=1;j<=5;j++) d += '<i class="' + (j<=v?'on':'') + '"></i>';
+      return '<span>' + labels[k] + '</span><span class="dotrow" role="img" aria-label="' + v + ' из 5">' + d + '</span>';
+    }).join('');
+    var sum = u.s.reduce(function(a,b){return a+b;},0);
+    return '<div class="usp' + (u.pick?' pick':'') + '"><span class="n">Вариант ' + (i+1) + ' · сумма ' + sum + ' из 25</span>' + (u.pick?'<span class="badge">' + u.pick + '</span>':'') + '<h4>' + u.t + '</h4><p class="muted" style="margin:0">' + u.d + '</p><div class="dots">' + dots + '</div></div>';
+  }).join('');
+
+  /* calculator */
+  var P = [
+    ['Налоги и банк', 0.07, 'Бюджет и банк', 'откладываем сразу с каждого платежа'],
+    ['Разработчики', 0.45, 'Исполнители по оценке задач', 'за принятый этап, после его оплаты'],
+    ['Комиссия за продажу', 'src', 'Тот, кто привёл клиента', '50% с аванса, 50% с финального платежа'],
+    ['Ведение проекта', 0.07, 'Менеджер проекта', 'по этапам вместе с разработчиками'],
+    ['Резерв гарантии', 0.05, 'На счёте 60 дней', 'остаток: 50% команде проекта, 50% в прибыль'],
+    ['Маркетинг агентства', 0.06, 'Фонд маркетинга', 'привлечение следующих клиентов'],
+    ['Операционные', 0.04, 'Фонд операционных', 'софт, бухгалтерия, юрист']
+  ];
+  var S = [
+    ['Налоги и банк', 0.07, 'Бюджет и банк', 'откладываем сразу'],
+    ['Исполнитель', 0.50, 'SEO-специалист, таргетолог, разработчик', 'раз в месяц после оплаты'],
+    ['Аккаунт-менеджмент', 0.10, 'Менеджер клиента', 'раз в месяц'],
+    ['Комиссия за продажу', 0.04, 'Тот, кто продал', 'первые 6 месяцев подписки'],
+    ['Сервисы', 0.05, 'SEO-инструменты, аналитика', 'по счетам сервисов'],
+    ['Маркетинг агентства', 0.03, 'Фонд маркетинга', 'привлечение клиентов']
+  ];
+  function calc(){
+    var type = $('cType').value, price = Math.max(0, +$('cPrice').value || 0), src = +$('cSrc').value;
+    $('cSrcWrap').style.display = type === 'project' ? '' : 'none';
+    var rows = (type === 'project' ? P : S).map(function(r){ return [r[0], r[1] === 'src' ? src : r[1], r[2], r[3]]; });
+    var used = rows.reduce(function(a, r){ return a + r[1]; }, 0);
+    rows.push(['Прибыль агентства', 1 - used, 'Собственники', 'раз в квартал: 50% дивиденды, 30% развитие, 20% бонус команде', true]);
+    var max = Math.max.apply(null, rows.map(function(r){ return r[1]; }));
+    $('splitOut').innerHTML = rows.map(function(r){
+      return '<div class="split-row' + (r[4]?' profit':'') + '"><span><b>' + r[0] + '</b> · ' + (r[1]*100).toFixed(0) + '%</span><div class="bar"><i style="width:' + (r[1]/max*100) + '%"></i></div><span class="amt">' + fmt(price*r[1]) + ' ₽</span><span class="who">' + r[2] + ' — ' + r[3] + '</span></div>';
+    }).join('');
+    var prod = type === 'project' ? price*0.45 : price*0.5;
+    var profit = price*(1-used);
+    $('calcSum').innerHTML =
+      '<div>Команде (разработка + менеджер)<b>' + fmt(type==='project' ? price*(0.45+0.07) : price*0.6) + ' ₽</b></div>' +
+      '<div>Часов работы при 1 475 ₽/ч<b>≈ ' + fmt(prod/1475) + ' ч</b></div>' +
+      '<div>Дивиденды собственникам<b>' + fmt(profit*0.5) + ' ₽</b></div>';
+  }
+  ['cType','cPrice','cSrc'].forEach(function(id){ $(id).addEventListener('input', calc); $(id).addEventListener('change', calc); });
+  calc();
+
+  /* funnel */
+  var fn = [['Заявки в месяц', 24], ['Квалифицированы и созвон', 14], ['Отправлено предложение', 8], ['Оплачено', 4]];
+  $('funnel').innerHTML = fn.map(function(f){
+    return '<div class="score"><span>' + f[0] + '</span><div class="track"><div class="fill" style="width:' + (f[1]/24*100) + '%"></div></div><b>' + f[1] + '</b></div>';
+  }).join('');
+
+  /* charts */
+  var D = {"Пессимист":{"rev":[0,70000,140000,165000,233500,327090,324265,346609,412612,503855,498824,519095],"profit":[-165782,-146182,-126582,-120582,-101342,-76081,-76759,-71396,-52756,-28057,-29265,-24400]},"База":{"rev":[90000,180000,305000,518600,640856,761822,916549,1033687,1184739,1333350,1479616,1533631],"profit":[-160582,-135382,-101782,-43318,-10377,22255,62989,94702,134555,173821,212525,225489]},"Оптимист":{"rev":[110000,375000,638650,945990,1250711,1552889,1742603,1974925,2313577,2538670,2760310,2978600],"profit":[-194982,-122582,-50506,32055,113988,195311,245242,305399,395476,444938,492583,539524]}};
+  var SER = [['База','--s1'],['Пессимист','--s2'],['Оптимист','--s3']];
+  function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  function lineChart(el, key, title, unitDiv, unitLbl, zero){
+    var W = 760, H = 300, m = {l:56, r:96, t:12, b:30};
+    var all = []; SER.forEach(function(s){ all = all.concat(D[s[0]][key]); });
+    var lo = Math.min(0, Math.min.apply(null, all)), hi = Math.max.apply(null, all);
+    var step = niceStep((hi-lo)/5);
+    lo = Math.floor(lo/step)*step; hi = Math.ceil(hi/step)*step;
+    var x = function(i){ return m.l + i*(W-m.l-m.r)/11; };
+    var y = function(v){ return m.t + (hi-v)/(hi-lo)*(H-m.t-m.b); };
+    var g = '<g class="grid">', ax = '<g class="axis">';
+    for (var v = lo; v <= hi + 1; v += step){
+      g += '<line x1="' + m.l + '" x2="' + (W-m.r) + '" y1="' + y(v) + '" y2="' + y(v) + '"/>';
+      ax += '<text x="' + (m.l-8) + '" y="' + (y(v)+4) + '" text-anchor="end">' + fmtAxis(v/unitDiv) + '</text>';
+    }
+    for (var i = 0; i < 12; i++) ax += '<text x="' + x(i) + '" y="' + (H-8) + '" text-anchor="middle">М' + (i+1) + '</text>';
+    g += '</g>'; ax += '</g>';
+    var lines = '', ends = [], marks = '';
+    SER.forEach(function(s){
+      var d = D[s[0]][key], col = css(s[1]);
+      lines += '<polyline fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="' + d.map(function(v,i){ return x(i)+','+y(v); }).join(' ') + '"/>';
+      ends.push({y:y(d[11]), name:s[0], col:col});
+    });
+    ends.sort(function(a,b){ return a.y-b.y; });
+    for (var k = 1; k < ends.length; k++) if (ends[k].y - ends[k-1].y < 15) ends[k].y = ends[k-1].y + 15;
+    var lbl = ends.map(function(e){ return '<text x="' + (W-m.r+8) + '" y="' + (e.y+4) + '" font-size="12" fill="' + css('--ink-2') + '">' + e.name + '</text>'; }).join('');
+    var zl = zero && lo < 0 ? '<line class="zero" x1="' + m.l + '" x2="' + (W-m.r) + '" y1="' + y(0) + '" y2="' + y(0) + '"/>' : '';
+    var leg = SER.map(function(s){ return '<span><i style="background:' + css(s[1]) + '"></i>' + s[0] + '</span>'; }).join('');
+    el.innerHTML = '<div class="chart-h"><b>' + title + '</b><div class="legend">' + leg + '</div></div>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + title + '">' + g + zl + ax + lines +
+      '<line class="xh" x1="0" x2="0" y1="' + m.t + '" y2="' + (H-m.b) + '" stroke="' + css('--muted') + '" stroke-width="1" opacity="0"/>' +
+      '<g class="dots"></g>' + lbl + '<rect class="hit" x="' + m.l + '" y="0" width="' + (W-m.l-m.r) + '" height="' + H + '" fill="transparent"/></svg>' +
+      '<div class="tip"></div>';
+    var svg = el.querySelector('svg'), tip = el.querySelector('.tip'), xh = el.querySelector('.xh'), dots = el.querySelector('.dots');
+    function show(evt){
+      var r = svg.getBoundingClientRect(), sx = (evt.clientX - r.left) * W / r.width;
+      var i = Math.max(0, Math.min(11, Math.round((sx - m.l) / ((W-m.l-m.r)/11))));
+      xh.setAttribute('x1', x(i)); xh.setAttribute('x2', x(i)); xh.setAttribute('opacity', '.6');
+      dots.innerHTML = SER.map(function(s){ return '<circle cx="' + x(i) + '" cy="' + y(D[s[0]][key][i]) + '" r="4.5" fill="' + css(s[1]) + '" stroke="' + css('--surface') + '" stroke-width="2"/>'; }).join('');
+      tip.innerHTML = '<b>Месяц ' + (i+1) + '</b>' + SER.map(function(s){ return '<div><span><i style="background:' + css(s[1]) + '"></i>' + s[0] + '</span><span>' + fmt(D[s[0]][key][i]) + ' ₽</span></div>'; }).join('');
+      var px = x(i) * r.width / W + 12, cw = el.clientWidth;
+      if (px + 190 > cw) px = x(i) * r.width / W - 200;
+      tip.style.left = px + 'px'; tip.style.top = '48px'; tip.style.opacity = 1;
+    }
+    function hide(){ tip.style.opacity = 0; xh.setAttribute('opacity', '0'); dots.innerHTML = ''; }
+    var hit = el.querySelector('.hit');
+    hit.addEventListener('mousemove', show); hit.addEventListener('mouseleave', hide);
+    hit.addEventListener('touchstart', function(e){ show(e.touches[0]); }, {passive:true});
+    hit.addEventListener('touchmove', function(e){ show(e.touches[0]); }, {passive:true});
+  }
+  function niceStep(s){ var p = Math.pow(10, Math.floor(Math.log10(s))), n = s/p; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; }
+  function fmtAxis(v){ return (Math.round(v*10)/10).toString().replace('.', ','); }
+  function drawCharts(){
+    lineChart($('chartRev'), 'rev', 'Выручка по месяцам, млн ₽', 1e6, 'млн', false);
+    lineChart($('chartProfit'), 'profit', 'Прибыль агентства по месяцам, тыс. ₽', 1e3, 'тыс.', true);
+  }
+  drawCharts();
+  window.addEventListener('beforeprint', function(){ document.querySelectorAll('details').forEach(function(d){ d.open = true; }); });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawCharts);
+})();
+</script>
+</body>
+</html>
